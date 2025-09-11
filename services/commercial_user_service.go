@@ -68,3 +68,51 @@ func (as *UserService) FetchProfileByUserId(ctx context.Context, userID uuid.UUI
 func (vs *UserService) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.CommercialUser, error) {
 	return vs.Repository.UpdateUserStatus(ctx, userID, status)
 }
+
+func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) ([]*model.CommercialUser, []*model.UserProfile, error) {
+	reader := csv.NewReader(csvData)
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to read CSV file: %w", err)
+	}
+
+	if len(records) == 0 || !as.validateCSVHeader(records[0]) {
+		return nil, nil, fmt.Errorf("invalid CSV header. Expected 'Name,MobileNo,Email,Gender,Password'")
+	}
+	records = records[1:]
+
+	var signupInputs []model.SignupInput
+	for _, record := range records {
+		if len(record) < 5 {
+			return nil, nil, fmt.Errorf("invalid record format: row has too few columns")
+		}
+
+		signupInput := model.SignupInput{
+			Name:     record[0],
+			MobileNo: record[1],
+			Email:    record[2],
+			Gender:   record[3],
+			Password: record[4],
+		}
+
+		if signupInput.MobileNo == "" && signupInput.Email == "" {
+			return nil, nil, fmt.Errorf("either email or mobile number is required for user '%s'", signupInput.Name)
+		}
+
+		if signupInput.MobileNo != "" {
+			if exists, err := as.CheckForExistingUser("mobile_no", signupInput.MobileNo); err != nil || exists != nil {
+				return nil, nil, fmt.Errorf("user with mobile number '%s' already exists", signupInput.MobileNo)
+			}
+		}
+		if signupInput.Email != "" {
+			if exists, err := as.CheckForExistingUser("email", signupInput.Email); err != nil || exists != nil {
+				return nil, nil, fmt.Errorf("user with email '%s' already exists", signupInput.Email)
+			}
+		}
+
+		signupInputs = append(signupInputs, signupInput)
+	}
+
+	return as.Repository.CreateCommercialUsersFromCSV(signupInputs)
+}

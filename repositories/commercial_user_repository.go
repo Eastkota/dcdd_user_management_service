@@ -258,4 +258,58 @@ func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UU
 	return &updatedUser, nil
 }
 
+func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) ([]*model.DcddUser, []*model.UserProfile, error) {
+	var users []*model.DcddUser
+	var userProfiles []*model.UserProfile
+
+	// Start a single transaction for the entire batch.
+	err := repo.DB.Transaction(func(tx *gorm.DB) error {
+		for _, signupInput := range signupInputs {
+			identifier, err := helpers.GenerateRandomTokenString(6)
+			if err != nil {
+				return fmt.Errorf("failed to generate identifier: %v", err)
+			}
+
+			hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
+			if err != nil {
+				return fmt.Errorf("failed to hash password: %v", err)
+			}
+
+			newUser := model.DcddUser{
+				ID:             uuid.New(),
+				Name:           signupInput.Name,
+				MobileNo:       signupInput.MobileNo,
+				Email:          signupInput.Email,
+				UserIdentifier: identifier,
+				Password:       hashedPassword,
+				Status:         "Active",
+				CreatedAt:      time.Now(),
+				UpdatedAt:      time.Now(),
+			}
+
+			if err := tx.Create(&newUser).Error; err != nil {
+				return fmt.Errorf("failed to insert user data for '%s': %v", signupInput.Name, err)
+			}
+			users = append(users, &newUser)
+
+			profileInput := model.UserProfileInput{
+				UserId: newUser.ID,
+				Gender: signupInput.Gender,
+				Name:   signupInput.Name,
+			}
+			userProfile, err := repo.CreateUserProfile(tx, profileInput)
+			if err != nil {
+				return fmt.Errorf("failed to create user profile for user '%s': %v", newUser.Name, err)
+			}
+			userProfiles = append(userProfiles, userProfile)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return users, userProfiles, nil
+}
 

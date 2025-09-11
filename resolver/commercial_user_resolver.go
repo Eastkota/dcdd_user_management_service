@@ -204,6 +204,32 @@ func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.Generic
 	}
 }
 
+func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.GenericUserResponse {
+	fileUpload, ok := p.Args["csv_file"].(graphql.Upload)
+	if !ok {
+		return helpers.FormatError(fmt.Errorf("csv_file argument is required"))
+	}
+
+	csvFile, err := fileUpload.Open()
+	if err != nil {
+		return helpers.FormatError(fmt.Errorf("failed to open uploaded file: %w", err))
+	}
+	defer csvFile.Close()
+
+	users, profiles, err := ar.Services.CreateCommercialUsersFromCSV(p.Context, csvFile)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+
+	return &model.GenericUserResponse{
+		Data: &model.BulkCreateUserSuccessData{
+			Users:    users,
+			Profiles: profiles,
+		},
+		Error: nil,
+	}
+}
+
 
 // func (ar *UserResolver) UpdatePassword(p graphql.ResolveParams) *model.GenericAuthResponse {
 // 	var updatePasswordInput model.UpdatePasswordInput
