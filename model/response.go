@@ -5,10 +5,6 @@ type GenericAuthSuccessData struct {
     Code    string `json:"code"`
 }
 
-type GenericAuthResponse struct {
-    Data  interface{} `json:"data,omitempty"`
-    Error *AuthError  `json:"error,omitempty"`
-}
 
 type CreateUserSuccessData struct {
     User       *DcddUser              `json:"user"`
@@ -16,6 +12,10 @@ type CreateUserSuccessData struct {
 }
 type DeleteUserResult struct {
     User       *DcddUser              `json:"user"`
+}
+type BulkSuccessResult struct {
+    Message     string      `json:"message"`
+    Code     string      `json:"user"`
 }
 
 type GenericUserResponse struct {

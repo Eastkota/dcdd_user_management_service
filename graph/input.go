@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"user_management_service/graph/scalar"
+	"dcdd_user_management_service/graph/scalar"
 
 	"github.com/graphql-go/graphql"
 )
@@ -20,9 +20,33 @@ var SignupInput = graphql.NewInputObject(
 				Type: graphql.NewNonNull(graphql.String),
 			},
 			"gender": &graphql.InputObjectFieldConfig{
-				Type: graphql.String,
+				Type: graphql.NewNonNull(graphql.String),
 			},
 			"password": &graphql.InputObjectFieldConfig{
+				Type: graphql.NewNonNull(graphql.String),
+			},
+			"student_id": &graphql.InputObjectFieldConfig{
+				Type: graphql.String,
+			},
+			"grade_id": &graphql.InputObjectFieldConfig{
+				Type: scalar.UUID,
+			},
+			"school_id": &graphql.InputObjectFieldConfig{
+				Type: scalar.UUID,
+			},
+			"eccd_id": &graphql.InputObjectFieldConfig{
+				Type: scalar.UUID,
+			},
+			"cid": &graphql.InputObjectFieldConfig{
+				Type: graphql.String,
+			},
+			"dob": &graphql.InputObjectFieldConfig{
+				Type: graphql.String,
+			},
+			"dzongkhag_id": &graphql.InputObjectFieldConfig{
+				Type: scalar.UUID,
+			},
+			"category": &graphql.InputObjectFieldConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
 		},

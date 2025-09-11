@@ -1,8 +1,8 @@
 package schema
 
 import (
-	"user_management_service/resolver"
-	"user_management_service/graph/scalar"
+	"dcdd_user_management_service/resolver"
+	"dcdd_user_management_service/graph/scalar"
 	
 	"github.com/graphql-go/graphql"
 )
@@ -61,39 +61,18 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.UpdateUserStatus(p), nil
 				},
 			},
-			// "updatePassword": &graphql.Field{
-			// 	Type: GenericAuthResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"input": &graphql.ArgumentConfig{
-			// 			Type: UpdatePasswordInput,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return resolver.UpdatePassword(p), nil
-			// 	},
-			// },
-			// "resetPassword": &graphql.Field{
-			// 	Type: GenericAuthResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"input": &graphql.ArgumentConfig{
-			// 			Type: ResetPasswordInput,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return resolver.ResetPassword(p), nil
-			// 	},
-			// },
-			// "updateSingleUserDataById": &graphql.Field{
-			// 	Type: SingleUserResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"input": &graphql.ArgumentConfig{
-			// 			Type: UpdateSingleAuthDataInput,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return resolver.UpdateSingleDataByID(p), nil
-			// 	},
-			// },
+
+			"bulkRegistration": &graphql.Field{
+				Type: GenericUserResponse,
+				Args: graphql.FieldConfigArgument{
+					"csv_path": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.BulkRegistration(p), nil
+				},
+			},
 		},
 	})
 }

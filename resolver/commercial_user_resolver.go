@@ -1,12 +1,13 @@
 package resolvers
 
 import (
-	"user_management_service/helpers"
-	"user_management_service/model"
-	"user_management_service/services"
+	"dcdd_user_management_service/helpers"
+	"dcdd_user_management_service/model"
+	"dcdd_user_management_service/services"
 
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/graphql-go/graphql"
 	"github.com/google/uuid"
@@ -176,7 +177,6 @@ func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUs
 }
 
 func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.GenericUserResponse {
-	// Extract the question ID and the new 'is_published' status from the GraphQL arguments.
 	userID, ok := p.Args["userID"].(uuid.UUID)
 	if !ok || userID == uuid.Nil {
 		return helpers.FormatError(fmt.Errorf("userID is required"))
@@ -184,18 +184,14 @@ func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.Generic
 
 	status, ok := p.Args["status"].(string)
 	if !ok {
-		// A boolean argument is required, return an error if it's not present.
 		return helpers.FormatError(fmt.Errorf("User status is required and must be a boolean"))
 	}
 
-	// Call the service layer to perform the status update.
-	// Assuming the service layer has a corresponding method.
 	result, err := ur.Services.UpdateUserStatus(p.Context, userID, status)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
 
-	// Format the successful response.
 	return &model.GenericUserResponse{
 		Data: &model.DeleteUserResult{
 			User: result,
@@ -205,121 +201,31 @@ func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.Generic
 }
 
 func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.GenericUserResponse {
-	fileUpload, ok := p.Args["csv_file"].(graphql.Upload)
-	if !ok {
-		return helpers.FormatError(fmt.Errorf("csv_file argument is required"))
-	}
+    filePath, ok := p.Args["csv_path"].(string)
+    if !ok {
+        return helpers.FormatError(fmt.Errorf("csv_path argument is required"))
+    }
 
-	csvFile, err := fileUpload.Open()
-	if err != nil {
-		return helpers.FormatError(fmt.Errorf("failed to open uploaded file: %w", err))
-	}
-	defer csvFile.Close()
+    csvFile, err := os.Open(filePath)
+    if err != nil {
+        return helpers.FormatError(fmt.Errorf("failed to open file at path '%s': %w", filePath, err))
+    }
+    defer csvFile.Close()
 
-	users, profiles, err := ar.Services.CreateCommercialUsersFromCSV(p.Context, csvFile)
-	if err != nil {
-		return helpers.FormatError(err)
-	}
+    err = ar.Services.BulkRegistration(p.Context, csvFile)
+    if err != nil {
+        return &model.GenericUserResponse{
+            Data: nil,
+            Error: &model.UserError{Message: err.Error()},
+        }
+    }
 
-	return &model.GenericUserResponse{
-		Data: &model.BulkCreateUserSuccessData{
-			Users:    users,
-			Profiles: profiles,
-		},
-		Error: nil,
-	}
+    return &model.GenericUserResponse{
+        Data: &model.BulkSuccessResult{
+            Message: "Bulk registration completed successfully",
+        },
+        Error: nil,
+    }
 }
 
 
-// func (ar *UserResolver) UpdatePassword(p graphql.ResolveParams) *model.GenericAuthResponse {
-// 	var updatePasswordInput model.UpdatePasswordInput
-// 	inputData := p.Args["input"].(map[string]interface{})
-
-// 	jsonData, err := json.Marshal(inputData)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	err = json.Unmarshal(jsonData, &updatePasswordInput)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	err = ar.Services.UpdatePassword(updatePasswordInput)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	return &model.GenericAuthResponse{
-// 		Data: &model.GenericAuthSuccessData{
-// 			Message: "Password updated successfully",
-// 		},
-// 		Error: nil,
-// 	}
-// }
-// func (ar *UserResolver) UpdateSingleDataByID(p graphql.ResolveParams) *model.GenericAuthResponse {
-// 	// ctx := p.Context
-//     // user := ctx.Value(model.UserKey).(*model.User)
-// 	// if user == nil {
-// 	// 	return helpers.FormatError(fmt.Errorf("unauthorized"))
-// 	// }
-		
-// 	var updateSingleData model.UpdateSingleAuthDataInput
-// 	inputData := p.Args["input"].(map[string]interface{})
-
-// 	jsonData, err := json.Marshal(inputData)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	err = json.Unmarshal(jsonData, &updateSingleData)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	userID := uuid.MustParse("f81c3b55-d7a5-42ef-9f12-1d05dea507c6")//user.ID.String() /// TODO 
-// 	//Implement  the login to fetch user form Authorization
-// 	result, err := ar.Services.UpdateSingleDataByID(userID, updateSingleData)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	return &model.GenericAuthResponse{
-// 		Data: &model.UserResult{
-// 			User: result,
-// 		},
-// 		Error: nil,
-// 	}
-// }
-
-// func (ar *UserResolver) FetchUser(p graphql.ResolveParams) *model.GenericAuthResponse {
-// 	userID := p.Args["user_id"].(uuid.UUID)
-// 	result, err := ar.Services.FetchUser(userID)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	return &model.GenericAuthResponse{
-// 		Data: &model.UserResult{
-// 			User: result,
-// 		},
-// 		Error: nil,
-// 	}
-// }
-
-// func (ar *UserResolver) ResetPassword(p graphql.ResolveParams) *model.GenericAuthResponse {
-// 	var resetPasswordInput model.ResetPasswordInput
-// 	inputData := p.Args["input"].(map[string]interface{})
-
-// 	jsonData, err := json.Marshal(inputData)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	err = json.Unmarshal(jsonData, &resetPasswordInput)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	err = ar.Services.ResetPassword(resetPasswordInput)
-// 	if err != nil {
-// 		return helpers.FormatError(err)
-// 	}
-// 	return &model.GenericAuthResponse{
-// 		Data: &model.GenericAuthSuccessData{
-// 			Message: "Password updated successfully",
-// 		},
-// 		Error: nil,
-// 	}
-// }

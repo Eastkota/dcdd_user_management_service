@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/language/ast"
+
+	"mime/multipart"
 	"time"
 )
 
@@ -74,3 +76,22 @@ var Time = graphql.NewScalar(graphql.ScalarConfig{
 		return nil
 	},
 })
+
+var Upload = graphql.NewScalar(graphql.ScalarConfig{
+    Name:        "Upload",
+    Description: "The `Upload` scalar type represents a file upload.",
+    Serialize: func(value interface{}) interface{} {
+        return nil
+    },
+    ParseValue: func(value interface{}) interface{} {
+        if fileHeader, ok := value.(*multipart.FileHeader); ok {
+            return fileHeader
+        }
+        return nil
+    },
+    ParseLiteral: func(valueAST ast.Value) interface{} {
+        // Literal parsing not really used for file uploads
+        return nil
+    },
+})
+

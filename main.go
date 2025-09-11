@@ -1,13 +1,13 @@
 package main
 
 import (
-	"user_management_service/handlers"
+	"dcdd_user_management_service/handlers"
+	"dcdd_user_management_service/repositories"
+	"dcdd_user_management_service/resolver"
+	"dcdd_user_management_service/services"
+	"dcdd_user_management_service/graph"
+	"dcdd_user_management_service/helpers"
 
-	"user_management_service/repositories"
-	"user_management_service/resolver"
-	"user_management_service/services"
-	"user_management_service/graph"
-	"user_management_service/helpers"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -44,6 +44,6 @@ func main() {
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
 	}))
 	e.POST("/graphql", handlers.Handler)
-	e.Logger.Fatal(e.Start(":8099"))
+	e.Logger.Fatal(e.Start(":8088"))
 }
 

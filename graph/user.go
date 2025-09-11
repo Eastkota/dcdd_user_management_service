@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"user_management_service/graph/scalar"
+	"dcdd_user_management_service/graph/scalar"
 
 	"github.com/graphql-go/graphql"
 )
@@ -23,13 +23,18 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 
 // Define UserType
 var UserProfile = graphql.NewObject(graphql.ObjectConfig{
-	Name: "AuthUserProfile",
+	Name: "UserProfile",
 	Fields: graphql.Fields{
 		"id":                         &graphql.Field{Type: scalar.UUID},
+		"student_id":                         &graphql.Field{Type: scalar.UUID},
+		"grade_id":                         &graphql.Field{Type: scalar.UUID},
+		"eccd_id":                         &graphql.Field{Type: scalar.UUID},
+		"dzongkhag_idid":                         &graphql.Field{Type: scalar.UUID},
 		"name":                       &graphql.Field{Type: graphql.String},
 		"profile_picture":            &graphql.Field{Type: graphql.String},
-		"favorite_video_playlist_id": &graphql.Field{Type: scalar.UUID},
 		"gender":                     &graphql.Field{Type: graphql.String},
+		"cid":                     &graphql.Field{Type: graphql.String},
+		"dob":                     &graphql.Field{Type: scalar.Time},
 		"created_at":                 &graphql.Field{Type: scalar.Time},
 		"updated_at":                 &graphql.Field{Type: scalar.Time},
 	},

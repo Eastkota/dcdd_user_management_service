@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"user_management_service/model"
+	"dcdd_user_management_service/model"
 
 	"context"
 
@@ -12,9 +12,11 @@ import (
 type Repository interface {
 	CheckForExistingUser(field, value string) (*model.DcddUser, error)
 	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	FetchUserByLoginID(field, value string) (*model.DcddUser, error)
 	CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
+	BulkRegistration(signupInputs []model.SignupInput) (error) 
+
+	FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
+	FetchUserByLoginID(field, value string) (*model.DcddUser, error)
 }

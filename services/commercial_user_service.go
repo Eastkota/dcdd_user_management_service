@@ -1,11 +1,14 @@
 package services
 
 import (
-	"user_management_service/repositories"
-	"user_management_service/model"
+	"dcdd_user_management_service/repositories"
+	"dcdd_user_management_service/model"
+	"dcdd_user_management_service/helpers"
 
 	"fmt"
 	"context"
+	"io"
+	"encoding/csv"
 
 	"gorm.io/gorm"
 	"github.com/google/uuid"
@@ -69,50 +72,87 @@ func (vs *UserService) UpdateUserStatus(ctx context.Context, userID uuid.UUID, s
 	return vs.Repository.UpdateUserStatus(ctx, userID, status)
 }
 
-func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) ([]*model.CommercialUser, []*model.UserProfile, error) {
-	reader := csv.NewReader(csvData)
+func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
+    reader := csv.NewReader(csvData)
 
-	records, err := reader.ReadAll()
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to read CSV file: %w", err)
-	}
+    records, err := reader.ReadAll()
+    if err != nil {
+        return fmt.Errorf("failed to read CSV file: %w", err)
+    }
 
-	if len(records) == 0 || !as.validateCSVHeader(records[0]) {
-		return nil, nil, fmt.Errorf("invalid CSV header. Expected 'Name,MobileNo,Email,Gender,Password'")
-	}
-	records = records[1:]
+    if len(records) == 0 || !helpers.ValidateCSVHeader(records[0]) {
+        return fmt.Errorf("invalid CSV header. Expected 'Name,MobileNo,Email,Gender,Password,StudentId,Category,SchoolId,GradeId,EccdId,Dob,DzongkhagId,Cid'")
+    }
+    records = records[1:]
 
-	var signupInputs []model.SignupInput
-	for _, record := range records {
-		if len(record) < 5 {
-			return nil, nil, fmt.Errorf("invalid record format: row has too few columns")
-		}
+    var signupInputs []model.SignupInput
+    for i, record := range records {
+        if len(record) < 13 {
+            return fmt.Errorf("invalid record format at row %d: row has too few columns (expected at least 13, got %d)", i+2, len(record))
+        }
 
-		signupInput := model.SignupInput{
-			Name:     record[0],
-			MobileNo: record[1],
-			Email:    record[2],
-			Gender:   record[3],
-			Password: record[4],
-		}
+        // --- Perform Type Conversions Here ---
+        
+        // Convert SchoolId, GradeId, EccdId, and DzongkhagId from string to uuid.NullUUID
+        schoolID, err := helpers.ParseUUIDStringToNullUUID(record[7])
+        if err != nil {
+            return fmt.Errorf("failed to parse SchoolId at row %d: %w", i+2, err)
+        }
 
-		if signupInput.MobileNo == "" && signupInput.Email == "" {
-			return nil, nil, fmt.Errorf("either email or mobile number is required for user '%s'", signupInput.Name)
-		}
+        gradeID, err := helpers.ParseUUIDStringToNullUUID(record[8])
+        if err != nil {
+            return fmt.Errorf("failed to parse GradeId at row %d: %w", i+2, err)
+        }
+        
+        eccdID, err := helpers.ParseUUIDStringToNullUUID(record[9])
+        if err != nil {
+            return fmt.Errorf("failed to parse EccdId at row %d: %w", i+2, err)
+        }
 
-		if signupInput.MobileNo != "" {
-			if exists, err := as.CheckForExistingUser("mobile_no", signupInput.MobileNo); err != nil || exists != nil {
-				return nil, nil, fmt.Errorf("user with mobile number '%s' already exists", signupInput.MobileNo)
-			}
-		}
-		if signupInput.Email != "" {
-			if exists, err := as.CheckForExistingUser("email", signupInput.Email); err != nil || exists != nil {
-				return nil, nil, fmt.Errorf("user with email '%s' already exists", signupInput.Email)
-			}
-		}
+        dzongkhagID, err := helpers.ParseUUIDStringToNullUUID(record[11])
+        if err != nil {
+            return fmt.Errorf("failed to parse DzongkhagId at row %d: %w", i+2, err)
+        }
 
-		signupInputs = append(signupInputs, signupInput)
-	}
+        // Convert Dob (Date of Birth) from string to *time.Time
+        dob, err := helpers.ParseDateString(record[10])
+        if err != nil {
+            return fmt.Errorf("failed to parse Dob at row %d: %w", i+2, err)
+        }
 
-	return as.Repository.CreateCommercialUsersFromCSV(signupInputs)
+        signupInput := model.SignupInput{
+            Name:        record[0],
+            MobileNo:    record[1],
+            Email:       record[2],
+            Gender:      record[3],
+            Password:    record[4],
+            StudentId:   record[5],
+            Category:    record[6],
+            SchoolId:    schoolID.UUID,      
+            GradeId:     gradeID.UUID,       
+            EccdId:      eccdID.UUID,        
+            Dob:         dob,           
+            DzongkhagId: dzongkhagID.UUID,   
+            Cid:         record[12],
+        }
+
+        if signupInput.MobileNo == "" && signupInput.Email == "" {
+            return fmt.Errorf("either email or mobile number is required for user '%s' at row %d", signupInput.Name, i+2)
+        }
+
+        if signupInput.MobileNo != "" {
+            if exists, err := as.CheckForExistingUser("mobile_no", signupInput.MobileNo); err != nil || exists != nil {
+                return fmt.Errorf("user with mobile number '%s' at row %d already exists", signupInput.MobileNo, i+2)
+            }
+        }
+        if signupInput.Email != "" {
+            if exists, err := as.CheckForExistingUser("email", signupInput.Email); err != nil || exists != nil {
+                return fmt.Errorf("user with email '%s' at row %d already exists", signupInput.Email, i+2)
+            }
+        }
+
+        signupInputs = append(signupInputs, signupInput)
+    }
+
+    return as.Repository.BulkRegistration(signupInputs)
 }

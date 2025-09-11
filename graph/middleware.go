@@ -1,8 +1,8 @@
 package schema
 
 import (
-	"user_management_service/helpers"
-	"user_management_service/model"
+	"dcdd_user_management_service/helpers"
+	"dcdd_user_management_service/model"
 	"fmt"
 
 	"github.com/graphql-go/graphql"

@@ -1,8 +1,8 @@
 package repositories
 
 import (
-    "user_management_service/model"
-    "user_management_service/helpers"
+    "dcdd_user_management_service/model"
+    "dcdd_user_management_service/helpers"
 
     "fmt"
     "time"
@@ -60,9 +60,6 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
             return fmt.Errorf("failed to hash password: %v", err)
         }
 
-        // First, check for an existing user by mobile number or email.
-        // NOTE: This check should also be part of the transaction to prevent race conditions.
-        // The current implementation is simplified for this example.
         if signupInput.MobileNo != "" {
             user, _ = repo.FetchUserByLoginID("mobile_no", signupInput.MobileNo)
             if user == nil && signupInput.Email != "" {
@@ -86,15 +83,11 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
             if err := tx.Model(user).Updates(updateData).Error; err != nil {
                 return fmt.Errorf("failed to update user data: %v", err)
             }
-            // Note: If you want to return the user's profile on update,
-            // you'll need to fetch it here.
             return nil
         }
 
-        // If no user is found, create a new user and their profile.
         newUser := model.DcddUser{
             ID:             uuid.New(),
-            Name:           signupInput.Name,
             MobileNo:       signupInput.MobileNo,
             Email:          signupInput.Email,
             UserIdentifier: identifier,
@@ -117,7 +110,6 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
             Gender: signupInput.Gender,
             Name:   signupInput.Name,
         }
-        // Pass the transaction 'tx' to the CreateUserProfile function.
         userProfile, err = repo.CreateUserProfile(tx, profileInput)
         if err != nil {
             return fmt.Errorf("failed to create user profile: %v", err)
@@ -150,21 +142,10 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         UpdatedAt:      time.Now(),
     }
 
-    // Use the passed-in transaction object for all database operations.
     if err := tx.Create(&userProfile).Error; err != nil {
         return nil, fmt.Errorf("failed to insert user profile: %v", err)
     }
 
-    favoritePlaylist := model.UserVideoPlaylist{
-        ID:        uuid.New(),
-        Name:      "Favorites",
-        Favorites: true,
-        ProfileId: userProfile.ID,
-    }
-
-    if err := tx.Create(&favoritePlaylist).Error; err != nil {
-        return nil, fmt.Errorf("failed to create favorite playlist: %v", err)
-    }
 
      profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
     if err != nil {
@@ -270,58 +251,68 @@ func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UU
 	return &updatedUser, nil
 }
 
-func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) ([]*model.DcddUser, []*model.UserProfile, error) {
-	var users []*model.DcddUser
-	var userProfiles []*model.UserProfile
+func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) (error) {
+    var users []*model.DcddUser
+    var userProfiles []*model.UserProfile
 
-	// Start a single transaction for the entire batch.
-	err := repo.DB.Transaction(func(tx *gorm.DB) error {
-		for _, signupInput := range signupInputs {
-			identifier, err := helpers.GenerateRandomTokenString(6)
-			if err != nil {
-				return fmt.Errorf("failed to generate identifier: %v", err)
-			}
+    // Start a single transaction for the entire batch.
+    err := repo.DB.Transaction(func(tx *gorm.DB) error {
+        for _, signupInput := range signupInputs {
+            identifier, err := helpers.GenerateRandomTokenString(6)
+            if err != nil {
+                return fmt.Errorf("failed to generate identifier: %v", err)
+            }
 
-			hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
-			if err != nil {
-				return fmt.Errorf("failed to hash password: %v", err)
-			}
+            hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
+            if err != nil {
+                return fmt.Errorf("failed to hash password: %v", err)
+            }
 
-			newUser := model.DcddUser{
-				ID:             uuid.New(),
-				Name:           signupInput.Name,
-				MobileNo:       signupInput.MobileNo,
-				Email:          signupInput.Email,
-				UserIdentifier: identifier,
-				Password:       hashedPassword,
-				Status:         "Active",
-				CreatedAt:      time.Now(),
-				UpdatedAt:      time.Now(),
-			}
+            loginid := helpers.GenerateLoginId(6)
 
-			if err := tx.Create(&newUser).Error; err != nil {
-				return fmt.Errorf("failed to insert user data for '%s': %v", signupInput.Name, err)
-			}
-			users = append(users, &newUser)
+            newUser := model.DcddUser{
+                ID:             uuid.New(),
+                MobileNo:       signupInput.MobileNo,
+                Email:          signupInput.Email,
+                UserIdentifier: identifier,
+                Password:       hashedPassword,
+                Status:         "Active",
+                CreatedAt:      time.Now(),
+                UpdatedAt:      time.Now(),
+                StudentId:     signupInput.StudentId,
+                Category:      signupInput.Category,
+                LoginId:       loginid,
+            }
 
-			profileInput := model.UserProfileInput{
-				UserId: newUser.ID,
-				Gender: signupInput.Gender,
-				Name:   signupInput.Name,
-			}
-			userProfile, err := repo.CreateUserProfile(tx, profileInput)
-			if err != nil {
-				return fmt.Errorf("failed to create user profile for user '%s': %v", newUser.Name, err)
-			}
-			userProfiles = append(userProfiles, userProfile)
-		}
-		return nil
-	})
+            if err := tx.Create(&newUser).Error; err != nil {
+                return fmt.Errorf("failed to insert user data for '%s': %v", signupInput.Name, err)
+            }
+            users = append(users, &newUser)
 
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return users, userProfiles, nil
+            profileInput := model.UserProfileInput{
+                UserId: newUser.ID,
+                Gender: signupInput.Gender,
+                Name:   signupInput.Name,
+                MobileNo: signupInput.MobileNo,
+                Email:    signupInput.Email,
+                GradeId:  signupInput.GradeId,
+                StudentId: signupInput.StudentId,
+                Password:  signupInput.Password,
+                SchoolId:  signupInput.SchoolId,
+                EccdId:    signupInput.EccdId,
+                Dob:       signupInput.Dob,
+                Cid:       signupInput.Cid,
+                DzongkhagId: signupInput.DzongkhagId,
+                Category:signupInput.Category,
+            }
+            userProfile, err := repo.CreateUserProfile(tx, profileInput)
+            if err != nil {
+                return fmt.Errorf("failed to create user profile for user '%s': %v", err)
+            }
+            userProfiles = append(userProfiles, userProfile)
+        }
+        return nil
+    })
+    return err
 }
 
