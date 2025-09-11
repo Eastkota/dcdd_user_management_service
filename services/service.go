@@ -10,10 +10,10 @@ import (
 )
 
 type Services interface {
-	CheckForExistingUser(field, value string) (*model.CommercialUser, error)
-	CreateCommercialUser(signupData model.SignupInput) (*model.CommercialUser, *model.UserProfile, error)
+	CheckForExistingUser(field, value string) (*model.DcddUser, error)
+	CreateDcddUser(signupData model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error)
-	UpdateCommercialUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.CommercialUser, *model.UserProfile, error)
+	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	FetchProfileByUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error)
-	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.CommercialUser, error)
+	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 }

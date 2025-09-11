@@ -11,11 +11,11 @@ type GenericAuthResponse struct {
 }
 
 type CreateUserSuccessData struct {
-    User       *CommercialUser              `json:"user"`
+    User       *DcddUser              `json:"user"`
     Profile    *UserProfile   `json:"profile"`
 }
 type DeleteUserResult struct {
-    User       *CommercialUser              `json:"user"`
+    User       *DcddUser              `json:"user"`
 }
 
 type GenericUserResponse struct {

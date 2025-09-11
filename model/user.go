@@ -2,8 +2,15 @@ package model
 
 import (
     "time"
-
     "github.com/google/uuid"
+)
+
+type DcddUser struct {
+type ContextKey string
+
+const (
+    UserKey    ContextKey = "user"
+    RequestKey ContextKey = "http_request"
 )
 
 type DcddUser struct {
@@ -17,15 +24,21 @@ type DcddUser struct {
     Category  	   string    `gorm:"not null" json:"category"`
     StudentId 	   string    `gorm:"type:varchar(50);unique" json:"student_id"`
     LoginId        string    `gorm:"type:varchar(20);unique;not null" json:"login_id"`
+    Category  	   string    `gorm:"not null" json:"category"`
+    StudentId 	   string    `gorm:"type:varchar(50);unique" json:"student_id"`
+    LoginId        string    `gorm:"type:varchar(20);unique;not null" json:"login_id"`
     CreatedAt      time.Time `json:"created_at"`
     UpdatedAt      time.Time `json:"updated_at"`
 }
 
 func (DcddUser) TableName() string {
     return "dcdd_auth.dcdd_users"
+func (DcddUser) TableName() string {
+    return "dcdd_auth.dcdd_users"
 }
 
 type UserResult struct {
+    DcddUser *DcddUser `json:"user"`
     DcddUser *DcddUser `json:"user"`
 }
 
@@ -41,6 +54,12 @@ type UserProfile struct {
 	EccdId                  uuid.NullUUID    `gorm:"type:varchar(32)" json:"eccd_id"`
     DzongkhagId             uuid.UUID    `gorm:"type:varchar(32)" json:"dzongkhag_id"`
     Dob                     *time.Time   `gorm:"type:date" json:"dob"`
+    Cid                     string    `gorm:"type:varchar(50)" json:"cid"`
+    SchoolId                uuid.NullUUID    `gorm:"type:varchar(32)" json:"school_id"`
+	GradeId                 uuid.NullUUID    `gorm:"type:varchar(32)" json:"grade_id"`
+	EccdId                  uuid.NullUUID    `gorm:"type:varchar(32)" json:"eccd_id"`
+    DzongkhagId             uuid.UUID    `gorm:"type:varchar(32)" json:"dzongkhag_id"`
+    Dob                     *time.Time   `gorm:"type:date" json:"dob"`
     CreatedAt               time.Time `json:"created_at"`
     UpdatedAt               time.Time `json:"updated_at"`
     School                  *School    `gorm:"foreignKey:SchoolId;references:ID" json:"school"`
@@ -48,10 +67,61 @@ type UserProfile struct {
 	Eccd      *Eccd      `gorm:"foreignKey:EccdId;references:ID" json:"eccd"`
 	Dzongkhag *Dzongkhag `gorm:"foreignKey:DzongkhagId;references:ID" json:"dzongkhag"`
 	DcddUser *DcddUser `gorm:"foreignKey:UserId;references:ID" json:"user"`
+    School                  *School    `gorm:"foreignKey:SchoolId;references:ID" json:"school"`
+	Grade                   *Grade     `gorm:"foreignKey:GradeId;references:ID" json:"grade"`
+	Eccd                    *Eccd      `gorm:"foreignKey:EccdId;references:ID" json:"eccd"`
+	Dzongkhag               *Dzongkhag `gorm:"foreignKey:DzongkhagId;references:ID" json:"dzongkhag"`
+	DcddUser                *DcddUser `gorm:"foreignKey:UserId;references:ID" json:"user"`
 }
 
 func (UserProfile) TableName() string {
     return "dcdd_user_data.dcdd_user_profiles"
+    return "dcdd_user_data.dcdd_user_profiles"
+}
+type School struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name      string `gorm:"type:varchar(255)" json:"name"`
+	PvtPublic string `gorm:"type:varchar(50)" json:"pvt_public"`
+}
+type SchoolResult struct {
+	School []School `gorm:"type:uuid;primaryKey" json:"school"`
+}
+func (School) TableName() string {
+	return "dcdd_user_data.schools"
+}
+type Grade struct {
+	ID   uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name string `gorm:"type:varchar(255)" json:"name"`
+}
+type GradeResult struct {
+	Grades []Grade `gorm:"type:uuid;primaryKey" json:"grade"`
+}
+func (Grade) TableName() string {
+	return "dcdd_user_data.grades"
+}
+
+type Eccd struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name      string `gorm:"type:varchar(255)" json:"name"`
+	Sort      int64  `gorm:"type:varchar(50)" json:"sort"`
+}
+type EccdResult struct {
+	Eccd []Eccd `gorm:"type:uuid;primaryKey" json:"eccd"`
+}
+func (Eccd) TableName() string {
+	return "dcdd_user_data.eccds"
+}
+type Dzongkhag struct {
+	ID   uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name string `gorm:"type:varchar(255)" json:"name"`
+}
+
+type DzongkhagResult struct {
+	Dzongkhags []Dzongkhag `gorm:"type:uuid;primaryKey" json:"dzongkhags"`
+}
+
+func (Dzongkhag) TableName() string {
+	return "dcdd_user_data.dzongkhags"
 }
 
 type UserVideoPlaylist struct {
@@ -60,10 +130,24 @@ type UserVideoPlaylist struct {
     Favorites bool      `gorm:"type:boolean;default:false" json:"favorites"`
     ProfileId uuid.UUID `gorm:"type:uuid" json:"profile_id"`
     Videos []PlaylistVideo `gorm:"foreignKey:PlaylistId;references:ID" json:"videos"`
+    Videos []PlaylistVideo `gorm:"foreignKey:PlaylistId;references:ID" json:"videos"`
     CreatedAt time.Time `json:"created_at"`
     UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (UserVideoPlaylist) TableName() string {
     return "dcdd_user_data.dcdd_video_playlists"
+    return "dcdd_user_data.dcdd_video_playlists"
 }
+type PlaylistVideo struct {
+	ID         uuid.UUID        `gorm:"type:uuid;primaryKey" json:"id"`
+	PlaylistId uuid.UUID        `gorm:"type:uuid" json:"playlist_id"`
+	OrderInPlaylist int 		`gorm:"type:integer" json:"order_in_playlist"`
+	VideoId    uuid.UUID 		`gorm:"type:uuid" json:"video_id"`
+	CreatedAt  time.Time     	`gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt  time.Time     	`gorm:"autoUpdateTime" json:"updated_at"`
+}
+func (PlaylistVideo) TableName() string {
+    return "dcdd_user_data.dcdd_playlist_videos"
+}
+

@@ -11,7 +11,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 	return graphql.NewObject(graphql.ObjectConfig{
 		Name: "Mutation",
 		Fields: graphql.Fields{
-			"createCommercialUser": &graphql.Field{
+			"createDcddUser": &graphql.Field{
 				Type: CreateUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"signup_input": &graphql.ArgumentConfig{
@@ -19,7 +19,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.CreateCommercialUser(p), nil
+					return resolver.CreateDcddUser(p), nil
 				},
 			},
 			"createUserProfile": &graphql.Field{
@@ -33,7 +33,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.CreateUserProfile(p), nil
 				},
 			},
-			"updateCommercialUser": &graphql.Field{
+			"updateDcddUser": &graphql.Field{
 				Type: CreateUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{
@@ -44,7 +44,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.UpdateCommercialUser(p), nil
+					return resolver.UpdateDcddUser(p), nil
 				},
 			},
 			"updateUserStatus" : &graphql.Field{
