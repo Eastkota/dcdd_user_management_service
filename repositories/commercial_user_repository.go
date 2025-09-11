@@ -21,8 +21,8 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
     return &UserRepository{DB: db}
 }
 
-func (repo *UserRepository) CheckForExistingUser(field, value string) (*model.CommercialUser, error) {
-    var user model.CommercialUser
+func (repo *UserRepository) CheckForExistingUser(field, value string) (*model.DcddUser, error) {
+    var user model.DcddUser
     err := repo.DB.Where(fmt.Sprintf("%s = ? AND status != ?", field), value, "Deleted").First(&user).Error
     if errors.Is(err, gorm.ErrRecordNotFound) {
         return nil, nil
@@ -33,8 +33,8 @@ func (repo *UserRepository) CheckForExistingUser(field, value string) (*model.Co
     return &user, nil
 }
 
-func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.CommercialUser, error) {
-    var user model.CommercialUser
+func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.DcddUser, error) {
+    var user model.DcddUser
     err := repo.DB.Where(fmt.Sprintf("%s = ?", field), value).First(&user).Error
     if err != nil {
         return nil, fmt.Errorf("failed to find user with %v %v", field, value)
@@ -43,9 +43,9 @@ func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.Comm
 }
 
 
-// CreateCommercialUser creates a new commercial user and their associated profile within a single transaction.
-func (repo *UserRepository) CreateCommercialUser(signupInput *model.SignupInput) (*model.CommercialUser, *model.UserProfile, error) {
-    var user *model.CommercialUser
+// CreateDcddUser creates a new commercial user and their associated profile within a single transaction.
+func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
+    var user *model.DcddUser
     var userProfile *model.UserProfile
     var err error
 
@@ -69,6 +69,7 @@ func (repo *UserRepository) CreateCommercialUser(signupInput *model.SignupInput)
                 user, _ = repo.FetchUserByLoginID("email", signupInput.Email)
             }
         }
+	     loginid := helpers.GenerateLoginId(6)
 
         // If a user is found, update their record.
         if user != nil {
@@ -79,6 +80,8 @@ func (repo *UserRepository) CreateCommercialUser(signupInput *model.SignupInput)
                 "password":        hashedPassword,
                 "status":          "Active",
                 "updated_at":      time.Now(),
+                "category":        signupInput.Category,
+				"login_id":        loginid,
             }
             if err := tx.Model(user).Updates(updateData).Error; err != nil {
                 return fmt.Errorf("failed to update user data: %v", err)
@@ -89,7 +92,7 @@ func (repo *UserRepository) CreateCommercialUser(signupInput *model.SignupInput)
         }
 
         // If no user is found, create a new user and their profile.
-        newUser := model.CommercialUser{
+        newUser := model.DcddUser{
             ID:             uuid.New(),
             Name:           signupInput.Name,
             MobileNo:       signupInput.MobileNo,
@@ -99,6 +102,9 @@ func (repo *UserRepository) CreateCommercialUser(signupInput *model.SignupInput)
             Status:         "Active",
             CreatedAt:      time.Now(),
             UpdatedAt:      time.Now(),
+            StudentId : 	signupInput.StudentId,
+			Category : 	    signupInput.Category,
+			LoginId :       loginid,	
         }
 
         if err := tx.Create(&newUser).Error; err != nil {
@@ -134,6 +140,14 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         Gender:         inputData.Gender,
         ProfilePicture: inputData.ProfilePicture,
         UserId:         inputData.UserId,
+        GradeId:        inputData.GradeId,
+        SchoolId:       inputData.SchoolId,
+        EccdId:         inputData.EccdId,
+        DzongkhagId:    inputData.DzongkhagId,
+        Dob:            inputData.Dob,
+        Cid:            inputData.Cid,
+        CreatedAt:      time.Now(),
+        UpdatedAt:      time.Now(),
     }
 
     // Use the passed-in transaction object for all database operations.
@@ -152,13 +166,11 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         return nil, fmt.Errorf("failed to create favorite playlist: %v", err)
     }
 
-    userProfile.FavoriteVideoPlaylistId = favoritePlaylist.ID
-    // Use the passed-in transaction object.
-    if err := tx.Save(&userProfile).Error; err != nil {
-        return nil, fmt.Errorf("failed to update user profile with playlist ID: %v", err)
+     profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
+    if err != nil {
+        return nil, fmt.Errorf("failed to fetch created profile: %v", err)
     }
-
-    return &userProfile, nil
+    return profile, nil
 }
 
 func (repo *UserRepository) FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error) {
@@ -175,8 +187,8 @@ func (repo *UserRepository) FetchProfileByUserId(ctx context.Context, userId uui
     return &profile, nil
 }
 
-func (repo *UserRepository) UpdateCommercialUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.CommercialUser, *model.UserProfile, error) {
-    var user model.CommercialUser
+func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
+    var user model.DcddUser
     var userProfile *model.UserProfile
     var err error
 
@@ -207,7 +219,7 @@ func (repo *UserRepository) UpdateCommercialUser(userID uuid.UUID, signupInput *
             updateData["email"] = signupInput.Email
         }
 
-        if err := tx.Model(&model.CommercialUser{}).Where("id = ?", userID).Updates(updateData).Error; err != nil {
+        if err := tx.Model(&model.DcddUser{}).Where("id = ?", userID).Updates(updateData).Error; err != nil {
             return fmt.Errorf("failed to update user data: %w", err)
         }
 
@@ -225,7 +237,7 @@ func (repo *UserRepository) UpdateCommercialUser(userID uuid.UUID, signupInput *
     }
 
 
-    var updatedUser model.CommercialUser
+    var updatedUser model.DcddUser
     if err := repo.DB.First(&updatedUser, "id = ?", userID).Error; err != nil {
         return nil, nil, fmt.Errorf("failed to re-fetch updated user: %w", err)
     }
@@ -233,9 +245,9 @@ func (repo *UserRepository) UpdateCommercialUser(userID uuid.UUID, signupInput *
     return &updatedUser, userProfile, nil
 }
 
-func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.CommercialUser, error) {
+func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
 	// Find the existing question by its ID
-	var user model.CommercialUser
+	var user model.DcddUser
 	if err := repo.DB.WithContext(ctx).First(&user, "id = ?", userID).Error; err != nil {
 		return nil, fmt.Errorf("user not found with ID: %s", userID)
 	}
@@ -250,7 +262,7 @@ func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UU
 	}
 
 	// Fetch the updated question to return the new state.
-	var updatedUser model.CommercialUser
+	var updatedUser model.DcddUser
 	if err := repo.DB.WithContext(ctx).Where("id = ?", userID).First(&updatedUser).Error; err != nil {
 		return nil, fmt.Errorf("failed to fetch the updated USER: %w", err)
 	}

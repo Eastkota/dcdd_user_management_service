@@ -71,15 +71,15 @@ var GenericUserSuccessData = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var CommercialUser = graphql.NewObject(graphql.ObjectConfig{
-	Name: "CommercialUser",
+var DcddUser = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUser",
 	Fields: graphql.Fields{
 		"user":       &graphql.Field{Type: User},
 		"profile":    &graphql.Field{Type: UserProfile},
 	},
 })
-var CommercialUserStatus = graphql.NewObject(graphql.ObjectConfig{
-	Name: "CommercialUserStatus",
+var DcddUserStatus = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserStatus",
 	Fields: graphql.Fields{
 		"user":       &graphql.Field{Type: User},
 	},

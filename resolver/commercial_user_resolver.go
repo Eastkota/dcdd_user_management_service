@@ -48,7 +48,7 @@ func (ar *UserResolver) CheckForExistingUser(p graphql.ResolveParams) *model.Gen
 
 }
 
-func (ar *UserResolver) CreateCommercialUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.GenericUserResponse {
 
 	var signupInput model.SignupInput
 	inputData := p.Args["signup_input"].(map[string]interface{})
@@ -62,7 +62,7 @@ func (ar *UserResolver) CreateCommercialUser(p graphql.ResolveParams) *model.Gen
 		return helpers.FormatError(err)
 	}
 
-	user, profile, err := ar.Services.CreateCommercialUser(signupInput)
+	user, profile, err := ar.Services.CreateDcddUser(signupInput)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
@@ -139,7 +139,7 @@ func (ur *UserResolver) FetchProfileByUserId(p graphql.ResolveParams) *model.Gen
 	}
 }
 
-func (ur *UserResolver) UpdateCommercialUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUserResponse {
     var signupInput model.SignupInput
     userID, ok := p.Args["user_id"].(uuid.UUID)
     if !ok {
@@ -161,7 +161,7 @@ func (ur *UserResolver) UpdateCommercialUser(p graphql.ResolveParams) *model.Gen
         return helpers.FormatError(err)
     }
 
-    user, profile, err := ur.Services.UpdateCommercialUser(userID, &signupInput)
+    user, profile, err := ur.Services.UpdateDcddUser(userID, &signupInput)
     if err != nil {
         return helpers.FormatError(err)
     }

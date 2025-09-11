@@ -11,7 +11,7 @@ import (
 func AuthMiddleware(next func(p graphql.ResolveParams) *model.GenericUserResponse) func(p graphql.ResolveParams) *model.GenericUserResponse {
 	return func(p graphql.ResolveParams) *model.GenericUserResponse {
 		ctx := p.Context
-		user := ctx.Value(model.UserKey).(*model.CommercialUser)
+		user := ctx.Value(model.UserKey).(*model.DcddUser)
 		if user == nil {
 			return helpers.FormatError(fmt.Errorf("UnAuthorized"))
 		}
