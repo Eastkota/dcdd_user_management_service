@@ -157,6 +157,16 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         return nil, fmt.Errorf("failed to insert user profile: %v", err)
     }
 
+    if inputData.GradeId != uuid.Nil && inputData.GradeId != uuid.Nil {
+       userProfile.GradeId = inputData.GradeId
+   }
+    if inputData.SchoolId != uuid.Nil && inputData.SchoolId != uuid.Nil {
+       userProfile.SchoolId = inputData.SchoolId
+   }
+    if inputData.EccdId != uuid.Nil && inputData.EccdId != uuid.Nil {
+       userProfile.EccdId = inputData.EccdId
+   }
+
 
     // profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
     // if err != nil {

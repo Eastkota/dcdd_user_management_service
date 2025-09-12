@@ -41,7 +41,7 @@ var SignupInput = graphql.NewInputObject(
 				Type: graphql.String,
 			},
 			"dob": &graphql.InputObjectFieldConfig{
-				Type: graphql.String,
+				Type: scalar.Time,
 			},
 			"dzongkhag_id": &graphql.InputObjectFieldConfig{
 				Type: scalar.UUID,
