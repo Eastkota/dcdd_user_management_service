@@ -8,7 +8,7 @@ import (
 
 var SignupInput = graphql.NewInputObject(
 	graphql.InputObjectConfig{
-		Name: "SignupInput",
+		Name: "DcddSignupInput",
 		Fields: graphql.InputObjectConfigFieldMap{
 			"email": &graphql.InputObjectFieldConfig{
 				Type: graphql.String,
@@ -20,6 +20,7 @@ var SignupInput = graphql.NewInputObject(
 				Type: graphql.NewNonNull(graphql.String),
 			},
 			"gender": &graphql.InputObjectFieldConfig{
+				Type: graphql.NewNonNull(graphql.String),
 				Type: graphql.NewNonNull(graphql.String),
 			},
 			"password": &graphql.InputObjectFieldConfig{
@@ -113,6 +114,7 @@ var UserProfileInput = graphql.NewInputObject(graphql.InputObjectConfig{
 		"name":            &graphql.InputObjectFieldConfig{Type: graphql.NewNonNull(graphql.String)},
 		"profile_picture": &graphql.InputObjectFieldConfig{Type: graphql.String},
 		"gender":          &graphql.InputObjectFieldConfig{Type: graphql.String},
+		"dzongkhag_id":    &graphql.InputObjectFieldConfig{Type: graphql.NewNonNull(scalar.UUID),},
 		"user_id":         &graphql.InputObjectFieldConfig{Type: graphql.NewNonNull(scalar.UUID)},
 	},
 })

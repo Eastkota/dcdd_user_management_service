@@ -54,22 +54,28 @@ var Time = graphql.NewScalar(graphql.ScalarConfig{
 		return nil
 	},
 
-	// Parse value from GraphQL input variables
 	ParseValue: func(value interface{}) interface{} {
 		if str, ok := value.(string); ok {
-			t, err := time.Parse(time.RFC3339, str)
-			if err == nil {
+			// Try YYYY-MM-DD first
+			if t, err := time.Parse("2006-01-02", str); err == nil {
+				return t
+			}
+			// Fallback to RFC3339
+			if t, err := time.Parse(time.RFC3339, str); err == nil {
 				return t
 			}
 		}
 		return nil
 	},
 
-	// Parse literal from GraphQL query (inline string)
 	ParseLiteral: func(astValue ast.Value) interface{} {
 		if v, ok := astValue.(*ast.StringValue); ok {
-			t, err := time.Parse(time.RFC3339, v.Value)
-			if err == nil {
+			// Try YYYY-MM-DD first
+			if t, err := time.Parse("2006-01-02", v.Value); err == nil {
+				return t
+			}
+			// Fallback to RFC3339
+			if t, err := time.Parse(time.RFC3339, v.Value); err == nil {
 				return t
 			}
 		}

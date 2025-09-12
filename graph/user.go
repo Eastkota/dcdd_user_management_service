@@ -12,10 +12,13 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"id":              &graphql.Field{Type: scalar.UUID},
 		"user_identifier": &graphql.Field{Type: graphql.String},
-		"name":            &graphql.Field{Type: graphql.String},
 		"email":           &graphql.Field{Type: graphql.String},
 		"mobile_no":       &graphql.Field{Type: graphql.String},
+		"login_id":        &graphql.Field{Type: graphql.String},
 		"status":          &graphql.Field{Type: graphql.String},
+		"password":        &graphql.Field{Type: graphql.String},
+		"student_id":      &graphql.Field{Type: graphql.String},
+		"category":        &graphql.Field{Type: graphql.String},
 		"created_at":      &graphql.Field{Type: scalar.Time},
 		"updated_at":      &graphql.Field{Type: scalar.Time},
 	},
@@ -39,7 +42,6 @@ var UserProfile = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at":                 &graphql.Field{Type: scalar.Time},
 	},
 })
-
 
 var ExistUser = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ExistUser",
@@ -89,3 +91,36 @@ var DcddUserStatus = graphql.NewObject(graphql.ObjectConfig{
 		"user":       &graphql.Field{Type: User},
 	},
 })
+
+var AuthSchool = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthSchool",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: scalar.UUID},
+		"name":       &graphql.Field{Type: graphql.String},
+		"message":    &graphql.Field{Type: graphql.String},
+		"pvt_public": &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthGrade = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthGrade",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthEccd = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthEccd",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: scalar.UUID},
+		"name":       &graphql.Field{Type: graphql.String},
+		"sort":       &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthDzongkhag = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthDzongkhag",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+

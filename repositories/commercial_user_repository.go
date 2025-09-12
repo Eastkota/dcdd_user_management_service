@@ -44,9 +44,11 @@ func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.Dcdd
 
 
 // CreateDcddUser creates a new commercial user and their associated profile within a single transaction.
+// CreateDcddUser creates a new commercial user and their associated profile within a single transaction.
 func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
     var user *model.DcddUser
-    var userProfile *model.UserProfile
+    var createdUser *model.DcddUser
+
     var err error
 
     err = repo.DB.Transaction(func(tx *gorm.DB) error {
@@ -68,6 +70,7 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
         }
 	     loginid := helpers.GenerateLoginId(6)
 
+    err = repo.DB.Transaction(func(tx *gorm.DB) error {
         // If a user is found, update their record.
         if user != nil {
             updateData := map[string]interface{}{
@@ -78,7 +81,7 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
                 "status":          "Active",
                 "updated_at":      time.Now(),
                 "category":        signupInput.Category,
-				"login_id":        loginid,
+                "login_id":        loginid,
             }
             if err := tx.Model(user).Updates(updateData).Error; err != nil {
                 return fmt.Errorf("failed to update user data: %v", err)
@@ -122,7 +125,30 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
         return nil, nil, err
     }
 
-    return user, userProfile, nil
+    // Check if a new user was created and then create the profile *outside* the transaction.
+    if newUserId != uuid.Nil {
+        profileInput := map[string]interface{}{
+            "user_id":      newUserId,
+            "gender":       signupInput.Gender,
+            "name":         signupInput.Name,
+            "cid":          signupInput.Cid,
+            "dob":          signupInput.Dob,
+            "dzongkhag_id": signupInput.DzongkhagId,
+            "eccd_id":      signupInput.EccdId,
+            "school_id":    signupInput.SchoolId,
+            "grade_id":     signupInput.GradeId,
+        }
+        userProfile, err := helpers.CreateDcddUserProfile(profileInput)
+        fmt.Println("Created user profile:", userProfile)
+        if err != nil {
+            return nil, nil, fmt.Errorf("failed to create user profile via API: %v", err)
+        }
+        // If everything succeeded, set the flag to true.
+        return createdUser, userProfile, nil
+    }
+
+    // This case covers updating an existing user, where no profile is created.
+    return createdUser, nil, nil // Fixed: Removed extra comma
 }
 
 func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error) {
@@ -147,7 +173,7 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
     }
 
 
-     profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
+    profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
     if err != nil {
         return nil, fmt.Errorf("failed to fetch created profile: %v", err)
     }

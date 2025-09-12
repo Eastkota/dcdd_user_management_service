@@ -83,7 +83,7 @@ func (Grade) TableName() string {
 type Eccd struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Name      string `gorm:"type:varchar(255)" json:"name"`
-	Sort      int64  `gorm:"type:varchar(50)" json:"sort"`
+	Sort      string  `gorm:"type:varchar(50)" json:"sort"`
 }
 type EccdResult struct {
 	Eccd []Eccd `gorm:"type:uuid;primaryKey" json:"eccd"`
