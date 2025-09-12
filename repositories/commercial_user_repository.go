@@ -44,33 +44,34 @@ func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.Dcdd
 
 
 // CreateDcddUser creates a new commercial user and their associated profile within a single transaction.
+// CreateDcddUser creates a new commercial user and their associated profile within a single transaction.
 func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
     var user *model.DcddUser
-    var userProfile *model.UserProfile
+    var createdUser *model.DcddUser
+
     var err error
 
+    if signupInput.MobileNo != "" {
+        user, _ = repo.FetchUserByLoginID("mobile_no", signupInput.MobileNo)
+        if user == nil && signupInput.Email != "" {
+            user, _ = repo.FetchUserByLoginID("email", signupInput.Email)
+        }
+    }
+
+    identifier := helpers.GenerateLoginId(6)
+    if err != nil {
+        return nil, nil, fmt.Errorf("failed to generate identifier: %v", err)
+    }
+    hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
+    if err != nil {
+        return nil, nil, fmt.Errorf("failed to hash password: %v", err)
+    }
+
+    // This variable will hold the ID of the newly created user
+    var newUserId uuid.UUID
+    loginid := helpers.GenerateLoginId(6)
+
     err = repo.DB.Transaction(func(tx *gorm.DB) error {
-        identifier, err := helpers.GenerateRandomTokenString(6)
-        if err != nil {
-            return fmt.Errorf("failed to generate identifier: %v", err)
-        }
-
-        hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
-        if err != nil {
-            return fmt.Errorf("failed to hash password: %v", err)
-        }
-
-        // First, check for an existing user by mobile number or email.
-        // NOTE: This check should also be part of the transaction to prevent race conditions.
-        // The current implementation is simplified for this example.
-        if signupInput.MobileNo != "" {
-            user, _ = repo.FetchUserByLoginID("mobile_no", signupInput.MobileNo)
-            if user == nil && signupInput.Email != "" {
-                user, _ = repo.FetchUserByLoginID("email", signupInput.Email)
-            }
-        }
-	     loginid := helpers.GenerateLoginId(6)
-
         // If a user is found, update their record.
         if user != nil {
             updateData := map[string]interface{}{
@@ -81,56 +82,68 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
                 "status":          "Active",
                 "updated_at":      time.Now(),
                 "category":        signupInput.Category,
-				"login_id":        loginid,
+                "login_id":        loginid,
             }
             if err := tx.Model(user).Updates(updateData).Error; err != nil {
                 return fmt.Errorf("failed to update user data: %v", err)
             }
-            // Note: If you want to return the user's profile on update,
-            // you'll need to fetch it here.
-            return nil
-        }
+        } else {
+            // If no user is found, create a new user and their profile.
+            newUser := model.DcddUser{
+                ID:             uuid.New(),
+                MobileNo:       signupInput.MobileNo,
+                Email:          signupInput.Email,
+                UserIdentifier: identifier,
+                Password:       hashedPassword,
+                Status:         "Active",
+                CreatedAt:      time.Now(),
+                UpdatedAt:      time.Now(),
+                StudentId:      signupInput.StudentId,
+                Category:       signupInput.Category,
+                LoginId:        loginid,
+            }
 
-        // If no user is found, create a new user and their profile.
-        newUser := model.DcddUser{
-            ID:             uuid.New(),
-            Name:           signupInput.Name,
-            MobileNo:       signupInput.MobileNo,
-            Email:          signupInput.Email,
-            UserIdentifier: identifier,
-            Password:       hashedPassword,
-            Status:         "Active",
-            CreatedAt:      time.Now(),
-            UpdatedAt:      time.Now(),
-            StudentId : 	signupInput.StudentId,
-			Category : 	    signupInput.Category,
-			LoginId :       loginid,	
-        }
+            if err := tx.Create(&newUser).Error; err != nil {
+                return fmt.Errorf("failed to insert user data: %v", err)
+            }
+            user = &newUser
+            newUserId = newUser.ID
+            createdUser = &newUser
 
-        if err := tx.Create(&newUser).Error; err != nil {
-            return fmt.Errorf("failed to insert user data: %v", err)
-        }
-        user = &newUser
+            fmt.Println("New User ID:", user.ID)
+        } // Fixed: Added missing closing brace for else block
 
-        profileInput := model.UserProfileInput{
-            UserId: newUser.ID,
-            Gender: signupInput.Gender,
-            Name:   signupInput.Name,
-        }
-        // Pass the transaction 'tx' to the CreateUserProfile function.
-        userProfile, err = repo.CreateUserProfile(tx, profileInput)
-        if err != nil {
-            return fmt.Errorf("failed to create user profile: %v", err)
-        }
-
-        return nil
+        return nil // Fixed: Proper return for transaction
     })
 
     if err != nil {
         return nil, nil, err
     }
 
-    return user, userProfile, nil
+    // Check if a new user was created and then create the profile *outside* the transaction.
+    if newUserId != uuid.Nil {
+        profileInput := map[string]interface{}{
+            "user_id":      newUserId,
+            "gender":       signupInput.Gender,
+            "name":         signupInput.Name,
+            "cid":          signupInput.Cid,
+            "dob":          signupInput.Dob,
+            "dzongkhag_id": signupInput.DzongkhagId,
+            "eccd_id":      signupInput.EccdId,
+            "school_id":    signupInput.SchoolId,
+            "grade_id":     signupInput.GradeId,
+        }
+        userProfile, err := helpers.CreateDcddUserProfile(profileInput)
+        fmt.Println("Created user profile:", userProfile)
+        if err != nil {
+            return nil, nil, fmt.Errorf("failed to create user profile via API: %v", err)
+        }
+        // If everything succeeded, set the flag to true.
+        return createdUser, userProfile, nil
+    }
+
+    // This case covers updating an existing user, where no profile is created.
+    return createdUser, nil, nil // Fixed: Removed extra comma
 }
 
 func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error) {
@@ -155,18 +168,7 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         return nil, fmt.Errorf("failed to insert user profile: %v", err)
     }
 
-    favoritePlaylist := model.UserVideoPlaylist{
-        ID:        uuid.New(),
-        Name:      "Favorites",
-        Favorites: true,
-        ProfileId: userProfile.ID,
-    }
-
-    if err := tx.Create(&favoritePlaylist).Error; err != nil {
-        return nil, fmt.Errorf("failed to create favorite playlist: %v", err)
-    }
-
-     profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
+    profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
     if err != nil {
         return nil, fmt.Errorf("failed to fetch created profile: %v", err)
     }
@@ -268,6 +270,111 @@ func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UU
 	}
 
 	return &updatedUser, nil
+}
+
+func (repo *UserRepository) GetSchool(ctx context.Context, id uuid.UUID) (*model.School, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var school model.School
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&school).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch school: %v", err)
+	}
+	return &school, nil
+}
+
+
+func (repo *UserRepository) GetEccd(ctx context.Context, id uuid.UUID) (*model.Eccd, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var eccd model.Eccd
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&eccd).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch eccd: %v", err)
+	}
+	return &eccd, nil
+}
+
+func (repo *UserRepository) GetGrade(ctx context.Context, id uuid.UUID) (*model.Grade, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var grade model.Grade
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&grade).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch grade: %v", err)
+	}
+	return &grade, nil
+}
+
+func (repo *UserRepository) GetDzongkhag(ctx context.Context, id uuid.UUID) (*model.Dzongkhag, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var dzongkhag model.Dzongkhag
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&dzongkhag).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch dzongkhag: %v", err)
+	}
+	return &dzongkhag, nil
+}
+
+func (repo *UserRepository) FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var dzongkhags []model.Dzongkhag
+	if err := db.WithContext(ctx).Find(&dzongkhags).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch dzongkhags: %v", err)
+	}
+	return dzongkhags, nil
+}
+
+func (repo *UserRepository) FetchGrade(ctx context.Context) ([]model.Grade, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var grades []model.Grade
+	if err := db.WithContext(ctx).Find(&grades).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch grades: %v", err)
+	}
+	return grades, nil
+}
+
+func (repo *UserRepository) FetchSchool(ctx context.Context, dzongkhagId uuid.UUID) ([]model.School, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+	var schools []model.School
+	if err := db.WithContext(ctx).Where("dzongkhag_id = ? ", dzongkhagId).Find(&schools).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch schools: %v", err)
+	}
+	return schools, nil
+}
+
+
+func (repo *UserRepository) FetchEccd(ctx context.Context, DzonghkhagId uuid.UUID) ([]model.Eccd, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var eccds []model.Eccd
+	if err := db.WithContext(ctx).Where("dzongkhag_id = ? ", DzonghkhagId).Find(&eccds).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch eccds: %v", err)
+	}
+	return eccds, nil
 }
 
 

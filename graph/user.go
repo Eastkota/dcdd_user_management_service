@@ -12,10 +12,13 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"id":              &graphql.Field{Type: scalar.UUID},
 		"user_identifier": &graphql.Field{Type: graphql.String},
-		"name":            &graphql.Field{Type: graphql.String},
 		"email":           &graphql.Field{Type: graphql.String},
 		"mobile_no":       &graphql.Field{Type: graphql.String},
+		"login_id":        &graphql.Field{Type: graphql.String},
 		"status":          &graphql.Field{Type: graphql.String},
+		"password":        &graphql.Field{Type: graphql.String},
+		"student_id":      &graphql.Field{Type: graphql.String},
+		"category":        &graphql.Field{Type: graphql.String},
 		"created_at":      &graphql.Field{Type: scalar.Time},
 		"updated_at":      &graphql.Field{Type: scalar.Time},
 	},
@@ -25,16 +28,24 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 var UserProfile = graphql.NewObject(graphql.ObjectConfig{
 	Name: "AuthUserProfile",
 	Fields: graphql.Fields{
-		"id":                         &graphql.Field{Type: scalar.UUID},
-		"name":                       &graphql.Field{Type: graphql.String},
-		"profile_picture":            &graphql.Field{Type: graphql.String},
-		"favorite_video_playlist_id": &graphql.Field{Type: scalar.UUID},
-		"gender":                     &graphql.Field{Type: graphql.String},
-		"created_at":                 &graphql.Field{Type: scalar.Time},
-		"updated_at":                 &graphql.Field{Type: scalar.Time},
+		"id":               &graphql.Field{Type: scalar.UUID},
+		"name":             &graphql.Field{Type: graphql.String},
+		"profile_picture":  &graphql.Field{Type: graphql.String},
+		"gender":           &graphql.Field{Type: graphql.String},
+		"grade_id":         &graphql.Field{Type: scalar.UUID},
+		"school_id":        &graphql.Field{Type: scalar.UUID},
+		"eccd_id":          &graphql.Field{Type: scalar.UUID},
+		"dzongkhag_id":     &graphql.Field{Type: scalar.UUID},
+		"dob":              &graphql.Field{Type: scalar.Time},
+		"created_at":       &graphql.Field{Type: scalar.Time},
+		"updated_at":       &graphql.Field{Type: scalar.Time},
+		"cid":              &graphql.Field{Type: graphql.String},
+		"school":    &graphql.Field{Type: AuthSchool},
+		"grade":     &graphql.Field{Type: AuthGrade},
+		"eccd":      &graphql.Field{Type: AuthEccd},
+		"dzongkhag": &graphql.Field{Type: AuthDzongkhag},
 	},
 })
-
 
 var ExistUser = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ExistUser",
@@ -84,3 +95,36 @@ var DcddUserStatus = graphql.NewObject(graphql.ObjectConfig{
 		"user":       &graphql.Field{Type: User},
 	},
 })
+
+var AuthSchool = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthSchool",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: scalar.UUID},
+		"name":       &graphql.Field{Type: graphql.String},
+		"message":    &graphql.Field{Type: graphql.String},
+		"pvt_public": &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthGrade = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthGrade",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthEccd = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthEccd",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: scalar.UUID},
+		"name":       &graphql.Field{Type: graphql.String},
+		"sort":       &graphql.Field{Type: graphql.String},
+	},
+})
+var AuthDzongkhag = graphql.NewObject(graphql.ObjectConfig{
+	Name: "AuthDzongkhag",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+

@@ -14,7 +14,6 @@ const (
 
 type DcddUser struct {
     ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-    Name           string    `gorm:"type:varchar(100);not null" json:"name"`
     UserIdentifier string    `gorm:"type:varchar(32);unique;not null" json:"user_identifier"`
     Email          string    `gorm:"type:varchar(100);unique" json:"email"`
     MobileNo       string    `gorm:"type:varchar(20);unique" json:"mobile_no"`
@@ -44,11 +43,12 @@ type UserProfile struct {
     Cid                     string    `gorm:"type:varchar(50)" json:"cid"`
     SchoolId                uuid.NullUUID    `gorm:"type:varchar(32)" json:"school_id"`
 	GradeId                 uuid.NullUUID    `gorm:"type:varchar(32)" json:"grade_id"`
-	EccdId                  uuid.NullUUID    `gorm:"type:varchar(32)" json:"eccd_id"`
-    DzongkhagId             uuid.UUID    `gorm:"type:varchar(32)" json:"dzongkhag_id"`
+	EccdId                  uuid.NullUUID    `gorm:"type:uuid" json:"eccd_id"`
+    DzongkhagId             uuid.UUID    `gorm:"type:uuid" json:"dzongkhag_id"`
     Dob                     *time.Time   `gorm:"type:date" json:"dob"`
     CreatedAt               time.Time `json:"created_at"`
     UpdatedAt               time.Time `json:"updated_at"`
+    
     School                  *School    `gorm:"foreignKey:SchoolId;references:ID" json:"school"`
 	Grade                   *Grade     `gorm:"foreignKey:GradeId;references:ID" json:"grade"`
 	Eccd                    *Eccd      `gorm:"foreignKey:EccdId;references:ID" json:"eccd"`
@@ -84,7 +84,7 @@ func (Grade) TableName() string {
 type Eccd struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Name      string `gorm:"type:varchar(255)" json:"name"`
-	Sort      int64  `gorm:"type:varchar(50)" json:"sort"`
+	Sort      string  `gorm:"type:varchar(50)" json:"sort"`
 }
 type EccdResult struct {
 	Eccd []Eccd `gorm:"type:uuid;primaryKey" json:"eccd"`

@@ -17,4 +17,9 @@ type Repository interface {
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
+
+	FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error)
+	FetchGrade(ctx context.Context) ([]model.Grade, error)
+	FetchSchool(ctx context.Context, dzongkhagId uuid.UUID) ([]model.School, error)
+	FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]model.Eccd, error)
 }
