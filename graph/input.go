@@ -21,7 +21,6 @@ var SignupInput = graphql.NewInputObject(
 			},
 			"gender": &graphql.InputObjectFieldConfig{
 				Type: graphql.NewNonNull(graphql.String),
-				Type: graphql.NewNonNull(graphql.String),
 			},
 			"password": &graphql.InputObjectFieldConfig{
 				Type: graphql.NewNonNull(graphql.String),

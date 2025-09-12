@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"user_management_service/config"
-	"user_management_service/model"
+	"dcdd_user_management_service/config"
+	"dcdd_user_management_service/model"
 
     "context"
     "fmt"
@@ -70,13 +70,13 @@ func CreateDcddUserProfile(profileInputData map[string]interface{}) (*model.User
                     DzongkhagId uuid.UUID   `json:"dzongkhag_id"` 
                     ID         uuid.UUID `json:"id"`
                     Gender    string   `json:"gender"`
-                    EccdId    uuid.NullUUID   `json:"eccd_id"`
+                    EccdId    uuid.UUID   `json:"eccd_id"`
                     Cid       string   `json:"cid"`
                     Name      string   `json:"name"`
                     UpdatedAt time.Time   `json:"updated_at"`
                     UserId    uuid.UUID   `json:"user_id"`
-                    GradeId   uuid.NullUUID   `json:"grade_id"`
-                    SchoolId  uuid.NullUUID   `json:"school_id"`
+                    GradeId   uuid.UUID   `json:"grade_id"`
+                    SchoolId  uuid.UUID   `json:"school_id"`
                     ProfilePicture string   `json:"profile_picture"`
                     CreatedAt time.Time   `json:"created_at"`
                     Dob     *time.Time   `json:"dob"`
@@ -219,13 +219,13 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
                     DzongkhagId uuid.UUID   `json:"dzongkhag_id"` 
                     ID         uuid.UUID `json:"id"`
                     Gender    string   `json:"gender"`
-                    EccdId    uuid.NullUUID   `json:"eccd_id"`
+                    EccdId    uuid.UUID   `json:"eccd_id"`
                     Cid       string   `json:"cid"`
                     Name      string   `json:"name"`
                     UpdatedAt time.Time   `json:"updated_at"`
                     UserId    uuid.UUID   `json:"user_id"`
-                    GradeId   uuid.NullUUID   `json:"grade_id"`
-                    SchoolId  uuid.NullUUID   `json:"school_id"`
+                    GradeId   uuid.UUID   `json:"grade_id"`
+                    SchoolId  uuid.UUID   `json:"school_id"`
                     ProfilePicture string   `json:"profile_picture"`
                     CreatedAt time.Time   `json:"created_at"`
                     Dob     *time.Time   `json:"dob"`
@@ -256,9 +256,6 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
             } `json:"error"`
         } `json:"dcddFetchProfileByUserId"`
     }
-
-    fmt.Println("Fetching profile for user ID: erty", tempResponse)
-
 	// Execute the request
 	err := userServiceClient.Run(context.Background(), req, &tempResponse)
 	if err != nil {
