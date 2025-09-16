@@ -21,16 +21,17 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
     return &UserRepository{DB: db}
 }
 
-func (repo *UserRepository) CheckForExistingUser(field, value string) (*model.DcddUser, error) {
+func (repo *UserRepository) CheckForDcddExistingUser(field, value string) (*model.DcddUser, error) {
     var user model.DcddUser
     err := repo.DB.Where(fmt.Sprintf("%s = ? AND status != ?", field), value, "Deleted").First(&user).Error
-    if errors.Is(err, gorm.ErrRecordNotFound) {
-        return nil, nil
-    }
+
     if err != nil {
-        return nil, fmt.Errorf("failed to find user with %v %v", field, value)
-    }
-    return &user, nil
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("failed to find user with %v %v: %v", field, value, err)
+	}
+	return &user, nil
 }
 
 func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.DcddUser, error) {
@@ -157,6 +158,16 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
         return nil, fmt.Errorf("failed to insert user profile: %v", err)
     }
 
+    if inputData.GradeId != uuid.Nil && inputData.GradeId != uuid.Nil {
+       userProfile.GradeId = inputData.GradeId
+   }
+    if inputData.SchoolId != uuid.Nil && inputData.SchoolId != uuid.Nil {
+       userProfile.SchoolId = inputData.SchoolId
+   }
+    if inputData.EccdId != uuid.Nil && inputData.EccdId != uuid.Nil {
+       userProfile.EccdId = inputData.EccdId
+   }
+
 
     // profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
     // if err != nil {
@@ -178,32 +189,43 @@ func (repo *UserRepository) FetchProfileByUserId(ctx context.Context, userId uui
     }
     return &profile, nil
 }
+func (repo *UserRepository) GetAllUsers() ([]model.DcddUser, error) {
+	var users []model.DcddUser
+	if err := repo.DB.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+func (repo *UserRepository) GetAllActiveUsers() ([]model.DcddUser, error){
+    var users []model.DcddUser
+    if err := repo.DB.Where("status = ?", "Active").Find(&users).Error; err != nil {
+        return nil, fmt.Errorf("failed to fetch active users: %w", err)
+    }
+    return users, nil
+}
 
 func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
     var user model.DcddUser
-    var userProfile *model.UserProfile
-    var err error
+    var userProfile model.UserProfile
 
-    err = repo.DB.Transaction(func(tx *gorm.DB) error {
+    err := repo.DB.Transaction(func(tx *gorm.DB) error {
         if err := tx.First(&user, "id = ?", userID).Error; err != nil {
             if errors.Is(err, gorm.ErrRecordNotFound) {
                 return fmt.Errorf("user with ID %s not found: %w", userID, err)
             }
             return fmt.Errorf("failed to fetch user for update: %w", err)
         }
-
-        // Step 2: Prepare the update data.
-        hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
-        if err != nil {
-            return fmt.Errorf("failed to hash password: %w", err)
-        }
-
         updateData := map[string]interface{}{
-            "name":       signupInput.Name,
-            "password":   hashedPassword,
             "updated_at": time.Now(),
         }
-        
+
+        if signupInput.Password != "" {
+            hashedPassword, err := helpers.EncryptPassword(signupInput.Password)
+            if err != nil {
+                return fmt.Errorf("failed to hash password: %w", err)
+            }
+            updateData["password"] = hashedPassword
+        }
         if signupInput.MobileNo != "" {
             updateData["mobile_no"] = signupInput.MobileNo
         }
@@ -211,14 +233,31 @@ func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.
             updateData["email"] = signupInput.Email
         }
 
-        if err := tx.Model(&model.DcddUser{}).Where("id = ?", userID).Updates(updateData).Error; err != nil {
+        if err := tx.Model(&user).Updates(updateData).Error; err != nil {
             return fmt.Errorf("failed to update user data: %w", err)
         }
 
-        // The 'user' variable is from the tx.First call, so we can use its ID.
-        userProfile, err = repo.FetchProfileByUserId(context.Background(), user.ID)
-        if err != nil {
-            return fmt.Errorf("failed to fetch user profile after update: %w", err)
+        if err := tx.Where("user_id = ?", user.ID).First(&userProfile).Error; err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                return fmt.Errorf("user profile not found for user ID %s: %w", user.ID, err)
+            }
+            return fmt.Errorf("failed to fetch user profile: %w", err)
+        }
+
+        profileUpdate := map[string]interface{}{}
+        if signupInput.Name != "" {
+            profileUpdate["name"] = signupInput.Name
+        }
+        if signupInput.Gender != "" {
+            profileUpdate["gender"] = signupInput.Gender
+        }
+        if signupInput.Cid != "" {
+            profileUpdate["cid"] = signupInput.Cid
+        }
+        if len(profileUpdate) > 0 {
+            if err := tx.Model(&userProfile).Updates(profileUpdate).Error; err != nil {
+                return fmt.Errorf("failed to update user profile: %w", err)
+            }
         }
 
         return nil
@@ -228,38 +267,20 @@ func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.
         return nil, nil, err
     }
 
-
-    var updatedUser model.DcddUser
-    if err := repo.DB.First(&updatedUser, "id = ?", userID).Error; err != nil {
-        return nil, nil, fmt.Errorf("failed to re-fetch updated user: %w", err)
-    }
-
-    return &updatedUser, userProfile, nil
+    return &user, &userProfile, nil
 }
 
 func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
 	// Find the existing question by its ID
 	var user model.DcddUser
-	if err := repo.DB.WithContext(ctx).First(&user, "id = ?", userID).Error; err != nil {
-		return nil, fmt.Errorf("user not found with ID: %s", userID)
+	if err := repo.DB.First(&user, "id = ?", userID).Error; err != nil {
+		return nil, err
 	}
-
-	updates := map[string]interface{}{
-		"status": status,
-		"updated_at":   time.Now(),
+	user.Status = status
+	if err := repo.DB.Save(&user).Error; err != nil {
+		return nil, err
 	}
-
-	if err := repo.DB.WithContext(ctx).Model(&user).Updates(updates).Error; err != nil {
-		return nil, fmt.Errorf("failed to update user status: %w", err)
-	}
-
-	// Fetch the updated question to return the new state.
-	var updatedUser model.DcddUser
-	if err := repo.DB.WithContext(ctx).Where("id = ?", userID).First(&updatedUser).Error; err != nil {
-		return nil, fmt.Errorf("failed to fetch the updated USER: %w", err)
-	}
-
-	return &updatedUser, nil
+	return &user, nil
 }
 
 func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) (error) {

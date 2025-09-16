@@ -21,10 +21,10 @@ func NewUserResolver(service services.Services) *UserResolver {
 	return &UserResolver{Services: service}
 }
 
-func (ar *UserResolver) CheckForExistingUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model.GenericUserResponse {
 	field := p.Args["field"].(string)
 	value := p.Args["value"].(string)
-	result, err := ar.Services.CheckForExistingUser(field, value)
+	result, err := ar.Services.CheckForDcddExistingUser(field, value)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
@@ -140,6 +140,23 @@ func (ur *UserResolver) FetchProfileByUserId(p graphql.ResolveParams) *model.Gen
 	}
 }
 
+func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, error) {
+	users, err := ur.Services.GetAllUsers()
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
+func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}, error) {
+    users, err := ur.Services.GetAllActiveUsers()
+    if err != nil {
+        return nil, err
+    }
+    return users, nil
+}
+
+
 func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUserResponse {
     var signupInput model.SignupInput
     userID, ok := p.Args["user_id"].(uuid.UUID)
@@ -175,6 +192,31 @@ func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUs
         Error: nil,
     }
 }
+func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserResponse {
+     ctx := p.Context
+    userIDStr, ok := p.Args["userID"].(string)
+    if !ok || userIDStr == "" {
+        return helpers.FormatError(fmt.Errorf("userID argument is required"))
+    }
+
+    userID, err := uuid.Parse(userIDStr)
+    if err != nil {
+        return helpers.FormatError(fmt.Errorf("invalid userID: %v", err))
+    }
+
+    updatedUser, err := ur.Services.UpdateUserStatus(ctx, userID, "Deleted")
+    if err != nil {
+        return helpers.FormatError(err)
+    }
+
+    return &model.GenericUserResponse{
+        Data: &model.DeleteUserResult{
+            User: updatedUser,
+        },
+        Error: nil,
+    }
+}
+
 
 func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.GenericUserResponse {
 	userID, ok := p.Args["userID"].(uuid.UUID)

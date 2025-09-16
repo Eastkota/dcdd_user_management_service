@@ -10,10 +10,12 @@ import (
 )
 
 type Repository interface {
-	CheckForExistingUser(field, value string) (*model.DcddUser, error)
+	CheckForDcddExistingUser(field, value string) (*model.DcddUser, error)
 	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
+	GetAllUsers() ([]model.DcddUser, error)
+	GetAllActiveUsers() ([]model.DcddUser, error)
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(signupInputs []model.SignupInput) (error) 
 

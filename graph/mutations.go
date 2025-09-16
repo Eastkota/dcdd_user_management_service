@@ -22,17 +22,17 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.CreateDcddUser(p), nil
 				},
 			},
-			"createUserProfile": &graphql.Field{
-				Type: UserProfileResponse,
-				Args: graphql.FieldConfigArgument{
-					"input": &graphql.ArgumentConfig{
-						Type: UserProfileInput,
-					},
-				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.CreateUserProfile(p), nil
-				},
-			},
+			// "createUserProfile": &graphql.Field{
+			// 	Type: UserProfileResponse,
+			// 	Args: graphql.FieldConfigArgument{
+			// 		"input": &graphql.ArgumentConfig{
+			// 			Type: UserProfileInput,
+			// 		},
+			// 	},
+			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			// 		return resolver.CreateUserProfile(p), nil
+			// 	},
+			// },
 			"updateDcddUser": &graphql.Field{
 				Type: CreateUserResponse,
 				Args: graphql.FieldConfigArgument{
@@ -61,7 +61,6 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.UpdateUserStatus(p), nil
 				},
 			},
-
 			"bulkRegistration": &graphql.Field{
 				Type: GenericUserResponse,
 				Args: graphql.FieldConfigArgument{
