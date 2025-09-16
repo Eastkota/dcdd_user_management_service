@@ -40,9 +40,9 @@ type UserProfile struct {
 	ProfilePicture string    `gorm:"profile_picture" json:"profile_picture,omitempty"`
 	Gender         string    `gorm:"type:varchar(20)" json:"gender,omitempty"`
 	UserId         uuid.UUID `gorm:"type:uuid" json:"user_id"`
-	SchoolId       uuid.UUID     `gorm:"type:uuid" json:"school_id,omitempty"`
-	GradeId        uuid.UUID     `gorm:"type:uuid" json:"grade_id,omitempty"`
-	EccdId         uuid.UUID     `gorm:"type:uuid" json:"eccd_id,omitempty"`
+	SchoolId       uuid.UUID     `gorm:"type:uuid;default:null" json:"school_id,omitempty"`
+	GradeId        uuid.UUID     `gorm:"type:uuid;default:null" json:"grade_id,omitempty"`
+	EccdId         uuid.UUID     `gorm:"type:uuid;default:null" json:"eccd_id,omitempty"`
 	Dob            *time.Time    `gorm:"type:dob" json:"dob,omitempty"`
 	DzongkhagId    uuid.UUID     `gorm:"type:uuid" json:"dzongkhag_id"`
 	CreatedAt      time.Time `gorm:"autoCreateTime" json:"created_at"`
