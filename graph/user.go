@@ -29,10 +29,10 @@ var UserProfile = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfile",
 	Fields: graphql.Fields{
 		"id":                         &graphql.Field{Type: scalar.UUID},
-		"student_id":                         &graphql.Field{Type: scalar.UUID},
-		"grade_id":                         &graphql.Field{Type: scalar.UUID},
-		"eccd_id":                         &graphql.Field{Type: scalar.UUID},
-		"dzongkhag_idid":                         &graphql.Field{Type: scalar.UUID},
+		"student_id":                 &graphql.Field{Type: scalar.UUID},
+		"grade_id":                   &graphql.Field{Type: scalar.UUID},
+		"eccd_id":                    &graphql.Field{Type: scalar.UUID},
+		"dzongkhag_idid":             &graphql.Field{Type: scalar.UUID},
 		"name":                       &graphql.Field{Type: graphql.String},
 		"profile_picture":            &graphql.Field{Type: graphql.String},
 		"gender":                     &graphql.Field{Type: graphql.String},
@@ -42,6 +42,32 @@ var UserProfile = graphql.NewObject(graphql.ObjectConfig{
 		"updated_at":                 &graphql.Field{Type: scalar.Time},
 	},
 })
+
+var UserProfileAndUsers = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserProfileAndUsers",
+	Fields: graphql.Fields{
+		"id":                         &graphql.Field{Type: scalar.UUID},
+		"student_id":                 &graphql.Field{Type: scalar.UUID},
+		"user_identifier":			  &graphql.Field{Type: graphql.String},
+		"email":           			  &graphql.Field{Type: graphql.String},
+		"mobile_no":       			  &graphql.Field{Type: graphql.String},
+		"login_id":        			  &graphql.Field{Type: graphql.String},
+		"status":            		  &graphql.Field{Type: graphql.String},
+		"password":        			  &graphql.Field{Type: graphql.String},
+		"category":        		      &graphql.Field{Type: graphql.String},
+		"grade_id":                   &graphql.Field{Type: scalar.UUID},
+		"eccd_id":                    &graphql.Field{Type: scalar.UUID},
+		"dzongkhag_idid":             &graphql.Field{Type: scalar.UUID},
+		"name":                       &graphql.Field{Type: graphql.String},
+		"profile_picture":            &graphql.Field{Type: graphql.String},
+		"gender":                     &graphql.Field{Type: graphql.String},
+		"cid":                     	  &graphql.Field{Type: graphql.String},
+		"dob":                     	  &graphql.Field{Type: scalar.Time},
+		"created_at":                 &graphql.Field{Type: scalar.Time},
+		"updated_at":                 &graphql.Field{Type: scalar.Time},
+	},
+})
+
 
 var ExistUser = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ExistUser",

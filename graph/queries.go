@@ -29,8 +29,8 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return serviceInfo, nil
 				},
 			},
-			"checkForExistingUser": &graphql.Field{
-				Type: CheckForExistingUserResponse,
+			"CheckForDcddExistingUser": &graphql.Field{
+				Type: CheckForDcddExistingUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"field": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -40,7 +40,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.CheckForExistingUser(p), nil
+					return resolver.CheckForDcddExistingUser(p), nil
 				},
 			},
 			"fetchProfileByUserId": &graphql.Field{
@@ -54,17 +54,18 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.FetchProfileByUserId(p), nil
 				},
 			},
-			// "fetchUser": &graphql.Field{
-			// 	Type: SingleUserResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"user_id": &graphql.ArgumentConfig{
-			// 			Type: scalar.UUID,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return AuthMiddleware(resolver.FetchUser)(p), nil
-			// 	},
-			// },
+			"fetchAllUsers": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchAllUsers(p)
+				},
+			},
+			"fetchAllActiveUsers": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchAllActiveUsers(p)
+				},
+			},
 		},
 	})
 }

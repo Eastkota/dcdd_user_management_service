@@ -22,8 +22,8 @@ func NewUserService(repository repositories.Repository) *UserService {
 	return &UserService{Repository: repository}
 }
 
-func (as *UserService) CheckForExistingUser(field, value string) (*model.DcddUser, error) {
-	return as.Repository.CheckForExistingUser(field, value)
+func (as *UserService) CheckForDcddExistingUser(field, value string) (*model.DcddUser, error) {
+	return as.Repository.CheckForDcddExistingUser(field, value)
 }
 
 func (as *UserService) CreateDcddUser(signupData model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
@@ -32,7 +32,7 @@ func (as *UserService) CreateDcddUser(signupData model.SignupInput) (*model.Dcdd
 		return nil, nil, fmt.Errorf("either email or mobile number is required")
 	}
 	if signupData.MobileNo != "" {
-		mobileResult, err := as.CheckForExistingUser("mobile_no", signupData.MobileNo)
+		mobileResult, err := as.CheckForDcddExistingUser("mobile_no", signupData.MobileNo)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to register: %v", err)
 		}
@@ -43,7 +43,7 @@ func (as *UserService) CreateDcddUser(signupData model.SignupInput) (*model.Dcdd
 	}
 
 	if signupData.Email != "" {
-		emailResult, err := as.CheckForExistingUser("email", signupData.Email)
+		emailResult, err := as.CheckForDcddExistingUser("email", signupData.Email)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to register %v", err)
 		}
@@ -68,9 +68,18 @@ func (as *UserService) FetchProfileByUserId(ctx context.Context, userID uuid.UUI
     return as.Repository.FetchProfileByUserId(ctx, userID)
 }
 
-func (vs *UserService) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
-	return vs.Repository.UpdateUserStatus(ctx, userID, status)
+func (as *UserService) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
+	return as.Repository.UpdateUserStatus(ctx, userID, status)
 }
+
+func (as *UserService) GetAllUsers() ([]model.DcddUser, error) {
+	return as.Repository.GetAllUsers()
+}
+
+func (as *UserService) GetAllActiveUsers() ([]model.DcddUser, error) {
+    return as.Repository.GetAllActiveUsers()
+}
+
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
     reader := csv.NewReader(csvData)
@@ -141,12 +150,12 @@ func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) 
         }
 
         if signupInput.MobileNo != "" {
-            if exists, err := as.CheckForExistingUser("mobile_no", signupInput.MobileNo); err != nil || exists != nil {
+            if exists, err := as.CheckForDcddExistingUser("mobile_no", signupInput.MobileNo); err != nil || exists != nil {
                 return fmt.Errorf("user with mobile number '%s' at row %d already exists", signupInput.MobileNo, i+2)
             }
         }
         if signupInput.Email != "" {
-            if exists, err := as.CheckForExistingUser("email", signupInput.Email); err != nil || exists != nil {
+            if exists, err := as.CheckForDcddExistingUser("email", signupInput.Email); err != nil || exists != nil {
                 return fmt.Errorf("user with email '%s' at row %d already exists", signupInput.Email, i+2)
             }
         }
