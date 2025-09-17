@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"user_management_service/model"
-
+	"dcdd_user_management_service/model"
+	"time"
 	"context"
 
 	"gorm.io/gorm"
@@ -10,11 +10,16 @@ import (
 )
 
 type Repository interface {
-	CheckForExistingUser(field, value string) (*model.CommercialUser, error)
-	CreateCommercialUser(signUpInput *model.SignupInput) (*model.CommercialUser, *model.UserProfile, error)
-	FetchUserByLoginID(field, value string) (*model.CommercialUser, error)
+	CheckForDcddExistingUser(field, value string) (*model.DcddUser, error)
+	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
-	UpdateCommercialUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.CommercialUser, *model.UserProfile, error)
+	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
+	GetAllUsers() ([]model.DcddUser, error)
+	GetAllActiveUsers() ([]model.DcddUser, error)
+	FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
+	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
+	BulkRegistration(signupInputs []model.SignupInput) (error) 
+
 	FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
-	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.CommercialUser, error)
+	FetchUserByLoginID(field, value string) (*model.DcddUser, error)
 }

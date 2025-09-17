@@ -11,8 +11,8 @@ var GenericAuthResponse = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var CheckForExistingUserResponse = graphql.NewObject(graphql.ObjectConfig{
-	Name: "CheckForExistingUserResponse",
+var CheckForDcddExistingUserResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "CheckForDcddExistingUserResponse",
 	Fields: graphql.Fields{
 		"data":  &graphql.Field{Type: ExistUser},
 		"error": &graphql.Field{Type: AuthError},
@@ -46,14 +46,14 @@ var GenericUserResponse = graphql.NewObject(graphql.ObjectConfig{
 var CreateUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "LoginResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: CommercialUser},
+		"data":  &graphql.Field{Type: DcddUser},
 		"error": &graphql.Field{Type: AuthError},
 	},
 })
 var UserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserStatusResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: CommercialUserStatus},
+		"data":  &graphql.Field{Type: DcddUserStatus},
 		"error": &graphql.Field{Type: AuthError},
 	},
 })

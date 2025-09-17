@@ -1,10 +1,10 @@
 package schema
 
 import (
-	"user_management_service/helpers"
-	"user_management_service/model"
-	"user_management_service/resolver"
-	"user_management_service/graph/scalar"
+	"dcdd_user_management_service/helpers"
+	"dcdd_user_management_service/model"
+	"dcdd_user_management_service/resolver"
+	"dcdd_user_management_service/graph/scalar"
 
 	"github.com/graphql-go/graphql"
 )
@@ -29,8 +29,8 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return serviceInfo, nil
 				},
 			},
-			"checkForExistingUser": &graphql.Field{
-				Type: CheckForExistingUserResponse,
+			"CheckForDcddExistingUser": &graphql.Field{
+				Type: CheckForDcddExistingUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"field": &graphql.ArgumentConfig{
 						Type: graphql.String,
@@ -40,7 +40,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.CheckForExistingUser(p), nil
+					return resolver.CheckForDcddExistingUser(p), nil
 				},
 			},
 			"fetchProfileByUserId": &graphql.Field{
@@ -54,17 +54,32 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.FetchProfileByUserId(p), nil
 				},
 			},
-			// "fetchUser": &graphql.Field{
-			// 	Type: SingleUserResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"user_id": &graphql.ArgumentConfig{
-			// 			Type: scalar.UUID,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return AuthMiddleware(resolver.FetchUser)(p), nil
-			// 	},
-			// },
+			"fetchAllUsers": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchAllUsers(p)
+				},
+			},
+			"fetchAllActiveUsers": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchAllActiveUsers(p)
+				},
+			},
+			"fetchUsersByDateRange": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers), // or just DcddUser type if you want only users
+				Args: graphql.FieldConfigArgument{
+					"fromDate": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String), // YYYY-MM-DD
+					},
+					"toDate": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchUsersByDateRange(p)
+				},
+			},
 		},
 	})
 }
