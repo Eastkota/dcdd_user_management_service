@@ -2,10 +2,10 @@ package services
 
 import (
 	"dcdd_user_management_service/model"
-
-	"context"
+	
 	"io"
-
+	"time"
+	"context"
 	"gorm.io/gorm"
 	"github.com/google/uuid"
 )
@@ -17,6 +17,7 @@ type Services interface {
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	GetAllUsers() ([]model.DcddUser, error)
 	GetAllActiveUsers() ([]model.DcddUser, error)
+	FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(ctx context.Context, csvData io.Reader) (error)
 

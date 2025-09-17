@@ -5,10 +5,10 @@ import (
 	"dcdd_user_management_service/model"
 	"dcdd_user_management_service/services"
 
-	"encoding/json"
-	"fmt"
 	"os"
-
+	"fmt"
+    "time"
+	"encoding/json"
 	"github.com/graphql-go/graphql"
 	"github.com/google/uuid"
 )
@@ -154,6 +154,22 @@ func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}
         return nil, err
     }
     return users, nil
+}
+func (ur *UserResolver) FetchUsersByDateRange(p graphql.ResolveParams)(interface{}, error) {
+    fromDateStr, _ := p.Args["fromDate"].(string)
+    toDateStr, _ := p.Args["toDate"].(string)
+
+    // Parse the dates (expects format YYYY-MM-DD)
+    fromDate, err := time.Parse("2006-01-02", fromDateStr)
+    if err != nil {
+        return nil, err
+    }
+    toDate, err := time.Parse("2006-01-02", toDateStr)
+    if err != nil {
+        return nil, err
+    }
+
+    return ur.Services.FetchUsersByDateRange(fromDate, toDate)
 }
 
 

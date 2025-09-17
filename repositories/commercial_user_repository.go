@@ -203,6 +203,17 @@ func (repo *UserRepository) GetAllActiveUsers() ([]model.DcddUser, error){
     }
     return users, nil
 }
+func (repo *UserRepository) FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
+    var users []model.DcddUser
+
+    err := repo.DB.Where("created_at BETWEEN ? AND ?", fromDate, toDate).Find(&users).Error
+    if err != nil {
+        return nil, fmt.Errorf("failed to fetch users between %v and %v: %w", fromDate, toDate, err)
+    }
+
+    return users, nil
+}
+
 
 func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
     var user model.DcddUser

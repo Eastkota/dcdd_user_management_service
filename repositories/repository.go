@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"dcdd_user_management_service/model"
-
+	"time"
 	"context"
 
 	"gorm.io/gorm"
@@ -16,6 +16,7 @@ type Repository interface {
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	GetAllUsers() ([]model.DcddUser, error)
 	GetAllActiveUsers() ([]model.DcddUser, error)
+	FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
 	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(signupInputs []model.SignupInput) (error) 
 
