@@ -66,6 +66,20 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.FetchAllActiveUsers(p)
 				},
 			},
+			"fetchUsersByDateRange": &graphql.Field{
+				Type: graphql.NewList(UserProfileAndUsers), // or just DcddUser type if you want only users
+				Args: graphql.FieldConfigArgument{
+					"fromDate": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String), // YYYY-MM-DD
+					},
+					"toDate": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchUsersByDateRange(p)
+				},
+			},
 		},
 	})
 }

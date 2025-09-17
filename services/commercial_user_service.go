@@ -5,11 +5,11 @@ import (
 	"dcdd_user_management_service/model"
 	"dcdd_user_management_service/helpers"
 
+    "time"
 	"fmt"
 	"context"
 	"io"
 	"encoding/csv"
-
 	"gorm.io/gorm"
 	"github.com/google/uuid"
 )
@@ -79,7 +79,9 @@ func (as *UserService) GetAllUsers() ([]model.DcddUser, error) {
 func (as *UserService) GetAllActiveUsers() ([]model.DcddUser, error) {
     return as.Repository.GetAllActiveUsers()
 }
-
+func (as *UserService) FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
+    return as.Repository.FetchUsersByDateRange(fromDate, toDate)
+}
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
     reader := csv.NewReader(csvData)
