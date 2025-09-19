@@ -17,12 +17,12 @@ RUN go mod download
 COPY . .
 
 # Build Service
-RUN go build -o contentservice
+RUN go build -o dcddusermanagementservice
 
 
 # Expose the necessary port
 EXPOSE 8097
 
 # Command to run the service
-CMD ["./contentservice"]
+CMD ["./dcddusermanagementservice"]
 
