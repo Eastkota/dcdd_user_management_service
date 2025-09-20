@@ -16,8 +16,8 @@ func CreateDcddUserProfile(profileInputData map[string]interface{}) (*model.User
 	userServiceClient := graphql.NewClient(config.UserServiceApiUrl())
 
 	req := graphql.NewRequest(`
-		mutation DcddCreateUserProfile($input: DcddUserProfileInput) {
-            dcddCreateUserProfile(input: $input) {
+		mutation DcddCreateDcddUserProfile($input: DcddUserProfileInput) {
+            dcddCreateDcddUserProfile(input: $input) {
                 data {
                     user_profile {
                         cid
@@ -64,7 +64,7 @@ func CreateDcddUserProfile(profileInputData map[string]interface{}) (*model.User
 	req.Var("input", cleanData)
 	req.Header.Set("Cache-Control", "no-cache")
 	var tempResponse struct {
-        DcddCreateUserProfile struct {
+        DcddCreateDcddUserProfile struct {
             Data struct {
                 UserProfile struct {
                     DzongkhagId uuid.UUID   `json:"dzongkhag_id"` 
@@ -105,7 +105,7 @@ func CreateDcddUserProfile(profileInputData map[string]interface{}) (*model.User
                 Field   string `json:"field"`
                 Message string `json:"message"`
             } `json:"error"`
-        } `json:"dcddCreateUserProfile"`
+        } `json:"dcddCreateDcddUserProfile"`
     }
 
 	// Execute the request
@@ -115,42 +115,42 @@ func CreateDcddUserProfile(profileInputData map[string]interface{}) (*model.User
 		return nil, err
 	}
 	// Check for errors in response
-	if tempResponse.DcddCreateUserProfile.Error.Message != "" {
-		return nil, fmt.Errorf("error from video service: %s", tempResponse.DcddCreateUserProfile.Error.Message)
+	if tempResponse.DcddCreateDcddUserProfile.Error.Message != "" {
+		return nil, fmt.Errorf("error from video service: %s", tempResponse.DcddCreateDcddUserProfile.Error.Message)
 	}
 
 
 	formattedProfile := &model.UserProfile{
-        DzongkhagId:    tempResponse.DcddCreateUserProfile.Data.UserProfile.DzongkhagId,
-        ID:             tempResponse.DcddCreateUserProfile.Data.UserProfile.ID,
-        Gender:         tempResponse.DcddCreateUserProfile.Data.UserProfile.Gender,
-        EccdId:         tempResponse.DcddCreateUserProfile.Data.UserProfile.EccdId,
-        Cid:            tempResponse.DcddCreateUserProfile.Data.UserProfile.Cid,
-        Name:           tempResponse.DcddCreateUserProfile.Data.UserProfile.Name,
-        UpdatedAt:      tempResponse.DcddCreateUserProfile.Data.UserProfile.UpdatedAt,
-        UserId:         tempResponse.DcddCreateUserProfile.Data.UserProfile.UserId,
-        GradeId:        tempResponse.DcddCreateUserProfile.Data.UserProfile.GradeId,
-        SchoolId:       tempResponse.DcddCreateUserProfile.Data.UserProfile.SchoolId,
-        ProfilePicture: tempResponse.DcddCreateUserProfile.Data.UserProfile.ProfilePicture,
-        CreatedAt:      tempResponse.DcddCreateUserProfile.Data.UserProfile.CreatedAt,
-        Dob:           tempResponse.DcddCreateUserProfile.Data.UserProfile.Dob,
+        DzongkhagId:    tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.DzongkhagId,
+        ID:             tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.ID,
+        Gender:         tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Gender,
+        EccdId:         tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.EccdId,
+        Cid:            tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Cid,
+        Name:           tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Name,
+        UpdatedAt:      tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.UpdatedAt,
+        UserId:         tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.UserId,
+        GradeId:        tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.GradeId,
+        SchoolId:       tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.SchoolId,
+        ProfilePicture: tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.ProfilePicture,
+        CreatedAt:      tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.CreatedAt,
+        Dob:           tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Dob,
         Dzongkhag: &model.Dzongkhag{
-            ID:   tempResponse.DcddCreateUserProfile.Data.UserProfile.Dzongkhag.ID,
-            Name: tempResponse.DcddCreateUserProfile.Data.UserProfile.Dzongkhag.Name,
+            ID:   tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Dzongkhag.ID,
+            Name: tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Dzongkhag.Name,
         },
         Eccd: &model.Eccd{
-            ID:        tempResponse.DcddCreateUserProfile.Data.UserProfile.Eccd.ID,
-            Name:      tempResponse.DcddCreateUserProfile.Data.UserProfile.Eccd.Name,
-            Sort:      tempResponse.DcddCreateUserProfile.Data.UserProfile.Eccd.Sort,     
+            ID:        tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Eccd.ID,
+            Name:      tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Eccd.Name,
+            Sort:      tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Eccd.Sort,     
         },
         Grade: &model.Grade{
-            ID:   tempResponse.DcddCreateUserProfile.Data.UserProfile.Grade.ID,
-            Name: tempResponse.DcddCreateUserProfile.Data.UserProfile.Grade.Name,            
+            ID:   tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Grade.ID,
+            Name: tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.Grade.Name,            
         },  
         School: &model.School{
-            ID:        tempResponse.DcddCreateUserProfile.Data.UserProfile.School.ID,
-            PvtPublic: tempResponse.DcddCreateUserProfile.Data.UserProfile.School.PvtPublic,
-            Name:      tempResponse.DcddCreateUserProfile.Data.UserProfile.School.Name,  
+            ID:        tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.School.ID,
+            PvtPublic: tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.School.PvtPublic,
+            Name:      tempResponse.DcddCreateDcddUserProfile.Data.UserProfile.School.Name,  
         },     
     }
     fmt.Println("formatted profile:", formattedProfile)
@@ -161,8 +161,8 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
  fmt.Println("Fetching profile for user ID:", userID)
 	userServiceClient := graphql.NewClient(config.UserServiceApiUrl())
 	req := graphql.NewRequest(`
-		query DcddFetchProfileByUserId($user_id: UUID!) {
-            dcddFetchProfileByUserId(user_id: $user_id) {
+		query DcddFetchProfileByDcddUserId($user_id: UUID!) {
+            dcddFetchProfileByDcddUserId(user_id: $user_id) {
                 data {
                     user_profile {
                         cid
@@ -213,7 +213,7 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
 
 	// Define response struct
 	var tempResponse struct {
-        DcddFetchProfileByUserId struct {
+        DcddFetchProfileByDcddUserId struct {
             Data struct {
                 GetUserProfile struct {
                     DzongkhagId uuid.UUID   `json:"dzongkhag_id"` 
@@ -254,7 +254,7 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
                 Field   string `json:"field"`
                 Message string `json:"message"`
             } `json:"error"`
-        } `json:"dcddFetchProfileByUserId"`
+        } `json:"dcddFetchProfileByDcddUserId"`
     }
 	// Execute the request
 	err := userServiceClient.Run(context.Background(), req, &tempResponse)
@@ -262,41 +262,41 @@ func GetUserProfile(userID uuid.UUID) (*model.UserProfile, error) {
 		return nil, fmt.Errorf("failed to fetch user profile : %v", err)
 	}
 	// Check for errors in response
-	if tempResponse.DcddFetchProfileByUserId.Error.Message != "" {
-		return nil, fmt.Errorf("error from video service: %s", tempResponse.DcddFetchProfileByUserId.Error.Message)
+	if tempResponse.DcddFetchProfileByDcddUserId.Error.Message != "" {
+		return nil, fmt.Errorf("error from video service: %s", tempResponse.DcddFetchProfileByDcddUserId.Error.Message)
 	}
 
 	formattedProfile := &model.UserProfile{
-        DzongkhagId:    tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.DzongkhagId,
-        ID:             tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.ID,
-        Gender:         tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Gender,
-        EccdId:         tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.EccdId,
-        Cid:            tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Cid,
-        Name:           tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Name,
-        UpdatedAt:      tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.UpdatedAt,
-        UserId:         tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.UserId,
-        GradeId:        tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.GradeId,
-        SchoolId:       tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.SchoolId,
-        ProfilePicture: tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.ProfilePicture,
-        CreatedAt:      tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.CreatedAt,
-        Dob:           tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Dob,
+        DzongkhagId:    tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.DzongkhagId,
+        ID:             tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.ID,
+        Gender:         tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Gender,
+        EccdId:         tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.EccdId,
+        Cid:            tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Cid,
+        Name:           tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Name,
+        UpdatedAt:      tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.UpdatedAt,
+        UserId:         tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.UserId,
+        GradeId:        tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.GradeId,
+        SchoolId:       tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.SchoolId,
+        ProfilePicture: tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.ProfilePicture,
+        CreatedAt:      tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.CreatedAt,
+        Dob:           tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Dob,
         Dzongkhag: &model.Dzongkhag{
-            ID:   tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Dzongkhag.ID,
-            Name: tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Dzongkhag.Name,
+            ID:   tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Dzongkhag.ID,
+            Name: tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Dzongkhag.Name,
         },
         Eccd: &model.Eccd{
-            ID:        tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Eccd.ID,
-            Name:      tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Eccd.Name,
-            Sort:      tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Eccd.Sort,     
+            ID:        tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Eccd.ID,
+            Name:      tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Eccd.Name,
+            Sort:      tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Eccd.Sort,     
         },
         Grade: &model.Grade{
-            ID:   tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Grade.ID,
-            Name: tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.Grade.Name,            
+            ID:   tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Grade.ID,
+            Name: tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.Grade.Name,            
         },  
         School: &model.School{
-            ID:        tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.School.ID,
-            PvtPublic: tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.School.PvtPublic,
-            Name:      tempResponse.DcddFetchProfileByUserId.Data.GetUserProfile.School.Name,  
+            ID:        tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.School.ID,
+            PvtPublic: tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.School.PvtPublic,
+            Name:      tempResponse.DcddFetchProfileByDcddUserId.Data.GetUserProfile.School.Name,  
         },     
     }
 

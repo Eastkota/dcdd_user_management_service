@@ -34,7 +34,7 @@ func (repo *UserRepository) CheckForDcddExistingUser(field, value string) (*mode
 	return &user, nil
 }
 
-func (repo *UserRepository) FetchUserByLoginID(field, value string) (*model.DcddUser, error) {
+func (repo *UserRepository) FetchDcddUserByLoginID(field, value string) (*model.DcddUser, error) {
     var user model.DcddUser
     err := repo.DB.Where(fmt.Sprintf("%s = ?", field), value).First(&user).Error
     if err != nil {
@@ -122,7 +122,7 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
             GradeId:    signupInput.GradeId,
         }
         
-        userProfile, err = repo.CreateUserProfile(tx, profileInput)
+        userProfile, err = repo.CreateDcddUserProfile(tx, profileInput)
         if err != nil {
             return fmt.Errorf("failed to create user profile: %v", err)
         }
@@ -137,7 +137,7 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
     return createdUser, userProfile, nil
 }
 
-func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error) {
+func (repo *UserRepository) CreateDcddUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error) {
     userProfile := model.UserProfile{
         ID:             uuid.New(),
         Name:           inputData.Name,
@@ -169,14 +169,14 @@ func (repo *UserRepository) CreateUserProfile(tx *gorm.DB, inputData model.UserP
    }
 
 
-    // profile, err := repo.FetchProfileByUserId(context.Background(), inputData.UserId)
+    // profile, err := repo.FetchProfileByDcddUserId(context.Background(), inputData.UserId)
     // if err != nil {
     //     return nil, fmt.Errorf("failed to fetch created profile: %v", err)
     // }
     return &userProfile, nil
 }
 
-func (repo *UserRepository) FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error) {
+func (repo *UserRepository) FetchProfileByDcddUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error) {
     var profile model.UserProfile
 
     db, err := helpers.GetGormDB()
@@ -189,21 +189,21 @@ func (repo *UserRepository) FetchProfileByUserId(ctx context.Context, userId uui
     }
     return &profile, nil
 }
-func (repo *UserRepository) GetAllUsers() ([]model.DcddUser, error) {
+func (repo *UserRepository) GetAllDcddUsers() ([]model.DcddUser, error) {
 	var users []model.DcddUser
 	if err := repo.DB.Find(&users).Error; err != nil {
 		return nil, err
 	}
 	return users, nil
 }
-func (repo *UserRepository) GetAllActiveUsers() ([]model.DcddUser, error){
+func (repo *UserRepository) GetAllActiveDcddUsers() ([]model.DcddUser, error){
     var users []model.DcddUser
     if err := repo.DB.Where("status = ?", "Active").Find(&users).Error; err != nil {
         return nil, fmt.Errorf("failed to fetch active users: %w", err)
     }
     return users, nil
 }
-func (repo *UserRepository) FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
+func (repo *UserRepository) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
     var users []model.DcddUser
 
     err := repo.DB.Where("created_at BETWEEN ? AND ?", fromDate, toDate).Find(&users).Error
@@ -281,7 +281,7 @@ func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.
     return &user, &userProfile, nil
 }
 
-func (repo *UserRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
+func (repo *UserRepository) UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
 	// Find the existing question by its ID
 	var user model.DcddUser
 	if err := repo.DB.First(&user, "id = ?", userID).Error; err != nil {
@@ -348,7 +348,7 @@ func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) (
                 DzongkhagId: signupInput.DzongkhagId,
                 Category:signupInput.Category,
             }
-            userProfile, err := repo.CreateUserProfile(tx, profileInput)
+            userProfile, err := repo.CreateDcddUserProfile(tx, profileInput)
             if err != nil {
                 return fmt.Errorf("failed to create user profile for user '%s': %v", err)
             }

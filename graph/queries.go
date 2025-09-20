@@ -43,7 +43,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.CheckForDcddExistingUser(p), nil
 				},
 			},
-			"fetchProfileByUserId": &graphql.Field{
+			"FetchProfileByDcddUserId": &graphql.Field{
 				Type: UserProfileResponse,
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{
@@ -51,22 +51,22 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchProfileByUserId(p), nil
+					return resolver.FetchProfileByDcddUserId(p), nil
 				},
 			},
-			"fetchAllUsers": &graphql.Field{
-				Type: graphql.NewList(UserProfileAndUsers),
+			"fetchAllDcddUsers": &graphql.Field{
+				Type: graphql.NewList(CreateUserResponse),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return resolver.FetchAllUsers(p)
 				},
 			},
-			"fetchAllActiveUsers": &graphql.Field{
+			"fetchAllActiveDcddUsers": &graphql.Field{
 				Type: graphql.NewList(UserProfileAndUsers),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return resolver.FetchAllActiveUsers(p)
 				},
 			},
-			"fetchUsersByDateRange": &graphql.Field{
+			"FetchDcddUsersByDateRange": &graphql.Field{
 				Type: graphql.NewList(UserProfileAndUsers), // or just DcddUser type if you want only users
 				Args: graphql.FieldConfigArgument{
 					"fromDate": &graphql.ArgumentConfig{
@@ -77,7 +77,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchUsersByDateRange(p)
+					return resolver.FetchDcddUsersByDateRange(p)
 				},
 			},
 		},
