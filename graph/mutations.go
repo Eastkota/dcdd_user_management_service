@@ -62,7 +62,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"bulkRegistration": &graphql.Field{
-				Type: GenericUserResponse,
+				Type: DcddGenericUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"csv_path": &graphql.ArgumentConfig{
 						Type: graphql.String,
