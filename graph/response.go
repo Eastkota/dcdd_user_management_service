@@ -43,8 +43,8 @@ var DcddGenericUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var CreateUserResponse = graphql.NewObject(graphql.ObjectConfig{
-	Name: "LoginResponse",
+var DcddCreateUserResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddCreateUserResponse",
 	Fields: graphql.Fields{
 		"data":  &graphql.Field{Type: DcddUser},
 		"error": &graphql.Field{Type: DcddAuthError},
