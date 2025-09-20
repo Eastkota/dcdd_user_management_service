@@ -83,8 +83,8 @@ var UserResult = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var UserProfileResult = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileResult",
+var DcddUserProfileResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserProfileResult",
 	Fields: graphql.Fields{
 		"user_profile": &graphql.Field{Type: UserProfile},
 	},
