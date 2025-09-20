@@ -30,7 +30,7 @@ var SingleUserResponse = graphql.NewObject(graphql.ObjectConfig{
 var UserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: UserProfileResult},
+		"data":  &graphql.Field{Type: DcddUserProfileResult},
 		"error": &graphql.Field{Type: UserError},
 	},
 })

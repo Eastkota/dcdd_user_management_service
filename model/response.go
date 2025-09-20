@@ -23,6 +23,6 @@ type GenericUserResponse struct {
 	Error *UserError
 }
 
-type UserProfileResult struct {
+type DcddUserProfileResult struct {
 	UserProfile *UserProfile `json:"user_profile"`
 }
