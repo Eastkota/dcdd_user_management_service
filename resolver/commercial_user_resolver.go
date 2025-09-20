@@ -76,7 +76,7 @@ func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.GenericUs
 	}
 }
 
-func (ur *UserResolver) CreateUserProfile(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.GenericUserResponse {
     var userProfileInput model.UserProfileInput
     inputData := p.Args["input"].(map[string]interface{})
     jsonData, err := json.Marshal(inputData)
@@ -107,7 +107,7 @@ func (ur *UserResolver) CreateUserProfile(p graphql.ResolveParams) *model.Generi
     }()
 
     // Pass the transaction 'tx' to the service layer.
-    result, err := ur.Services.CreateUserProfile(userProfileInput, tx)
+    result, err := ur.Services.CreateDcddUserProfile(userProfileInput, tx)
     if err != nil {
         tx.Rollback() // Roll back the transaction on error.
         return helpers.FormatError(err)
@@ -126,9 +126,9 @@ func (ur *UserResolver) CreateUserProfile(p graphql.ResolveParams) *model.Generi
     }
 }
 
-func (ur *UserResolver) FetchProfileByUserId(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model.GenericUserResponse {
 	userID := p.Args["user_id"].(uuid.UUID)
-	result, err := ur.Services.FetchProfileByUserId(p.Context, userID)
+	result, err := ur.Services.FetchProfileByDcddUserId(p.Context, userID)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
@@ -141,7 +141,7 @@ func (ur *UserResolver) FetchProfileByUserId(p graphql.ResolveParams) *model.Gen
 }
 
 func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, error) {
-	users, err := ur.Services.GetAllUsers()
+	users, err := ur.Services.GetAllDcddUsers()
 	if err != nil {
 		return nil, err
 	}
@@ -149,13 +149,13 @@ func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, err
 }
 
 func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}, error) {
-    users, err := ur.Services.GetAllActiveUsers()
+    users, err := ur.Services.GetAllActiveDcddUsers()
     if err != nil {
         return nil, err
     }
     return users, nil
 }
-func (ur *UserResolver) FetchUsersByDateRange(p graphql.ResolveParams)(interface{}, error) {
+func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams)(interface{}, error) {
     fromDateStr, _ := p.Args["fromDate"].(string)
     toDateStr, _ := p.Args["toDate"].(string)
 
@@ -169,7 +169,7 @@ func (ur *UserResolver) FetchUsersByDateRange(p graphql.ResolveParams)(interface
         return nil, err
     }
 
-    return ur.Services.FetchUsersByDateRange(fromDate, toDate)
+    return ur.Services.FetchDcddUsersByDateRange(fromDate, toDate)
 }
 
 
@@ -220,7 +220,7 @@ func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserRe
         return helpers.FormatError(fmt.Errorf("invalid userID: %v", err))
     }
 
-    updatedUser, err := ur.Services.UpdateUserStatus(ctx, userID, "Deleted")
+    updatedUser, err := ur.Services.UpdateDcddUserStatus(ctx, userID, "Deleted")
     if err != nil {
         return helpers.FormatError(err)
     }
@@ -234,7 +234,7 @@ func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserRe
 }
 
 
-func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) UpdateDcddUserStatus(p graphql.ResolveParams) *model.GenericUserResponse {
 	userID, ok := p.Args["userID"].(uuid.UUID)
 	if !ok || userID == uuid.Nil {
 		return helpers.FormatError(fmt.Errorf("userID is required"))
@@ -245,7 +245,7 @@ func (ur *UserResolver) UpdateUserStatus(p graphql.ResolveParams) *model.Generic
 		return helpers.FormatError(fmt.Errorf("User status is required and must be a boolean"))
 	}
 
-	result, err := ur.Services.UpdateUserStatus(p.Context, userID, status)
+	result, err := ur.Services.UpdateDcddUserStatus(p.Context, userID, status)
 	if err != nil {
 		return helpers.FormatError(err)
 	}

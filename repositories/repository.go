@@ -12,14 +12,14 @@ import (
 type Repository interface {
 	CheckForDcddExistingUser(field, value string) (*model.DcddUser, error)
 	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	CreateUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
+	CreateDcddUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	GetAllUsers() ([]model.DcddUser, error)
-	GetAllActiveUsers() ([]model.DcddUser, error)
-	FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
-	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
+	GetAllDcddUsers() ([]model.DcddUser, error)
+	GetAllActiveDcddUsers() ([]model.DcddUser, error)
+	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
+	UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(signupInputs []model.SignupInput) (error) 
 
-	FetchProfileByUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
-	FetchUserByLoginID(field, value string) (*model.DcddUser, error)
+	FetchProfileByDcddUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
+	FetchDcddUserByLoginID(field, value string) (*model.DcddUser, error)
 }

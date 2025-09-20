@@ -55,32 +55,32 @@ func (as *UserService) CreateDcddUser(signupData model.SignupInput) (*model.Dcdd
 	return as.Repository.CreateDcddUser(&signupData)
 }
 
-func (as *UserService) CreateUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error) {
+func (as *UserService) CreateDcddUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error) {
     // Pass the transaction 'tx' to the repository method.
-    return as.Repository.CreateUserProfile(tx, inputData)
+    return as.Repository.CreateDcddUserProfile(tx, inputData)
 }
 
 func (as *UserService) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
 	return as.Repository.UpdateDcddUser(userID, signupInput)
 }
 
-func (as *UserService) FetchProfileByUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error) {
-    return as.Repository.FetchProfileByUserId(ctx, userID)
+func (as *UserService) FetchProfileByDcddUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error) {
+    return as.Repository.FetchProfileByDcddUserId(ctx, userID)
 }
 
-func (as *UserService) UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
-	return as.Repository.UpdateUserStatus(ctx, userID, status)
+func (as *UserService) UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
+	return as.Repository.UpdateDcddUserStatus(ctx, userID, status)
 }
 
-func (as *UserService) GetAllUsers() ([]model.DcddUser, error) {
-	return as.Repository.GetAllUsers()
+func (as *UserService) GetAllDcddUsers() ([]model.DcddUser, error) {
+	return as.Repository.GetAllDcddUsers()
 }
 
-func (as *UserService) GetAllActiveUsers() ([]model.DcddUser, error) {
-    return as.Repository.GetAllActiveUsers()
+func (as *UserService) GetAllActiveDcddUsers() ([]model.DcddUser, error) {
+    return as.Repository.GetAllActiveDcddUsers()
 }
-func (as *UserService) FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
-    return as.Repository.FetchUsersByDateRange(fromDate, toDate)
+func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
+    return as.Repository.FetchDcddUsersByDateRange(fromDate, toDate)
 }
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {

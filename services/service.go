@@ -13,13 +13,13 @@ import (
 type Services interface {
 	CheckForDcddExistingUser(field, value string) (*model.DcddUser, error)
 	CreateDcddUser(signupData model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	CreateUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error)
+	CreateDcddUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	GetAllUsers() ([]model.DcddUser, error)
-	GetAllActiveUsers() ([]model.DcddUser, error)
-	FetchUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
-	UpdateUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
+	GetAllDcddUsers() ([]model.DcddUser, error)
+	GetAllActiveDcddUsers() ([]model.DcddUser, error)
+	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
+	UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(ctx context.Context, csvData io.Reader) (error)
 
-	FetchProfileByUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error)
+	FetchProfileByDcddUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error)
 }
