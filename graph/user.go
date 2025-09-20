@@ -69,8 +69,8 @@ var UserProfileAndUsers = graphql.NewObject(graphql.ObjectConfig{
 })
 
 
-var ExistUser = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ExistUser",
+var DcddExistUser = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddExistUser",
 	Fields: graphql.Fields{
 		"exist_user": &graphql.Field{Type: graphql.Boolean},
 		"user_id":    &graphql.Field{Type: scalar.UUID},
