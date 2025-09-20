@@ -22,7 +22,7 @@ var CheckForDcddExistingUserResponse = graphql.NewObject(graphql.ObjectConfig{
 var SingleUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "SingleUserResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: UserResult},
+		"data":  &graphql.Field{Type: DcddUserResult},
 		"error": &graphql.Field{Type: AuthError},
 	},
 })

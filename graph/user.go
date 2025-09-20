@@ -76,17 +76,17 @@ var ExistUser = graphql.NewObject(graphql.ObjectConfig{
 		"user_id":    &graphql.Field{Type: scalar.UUID},
 	},
 })
-var UserResult = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserResult",
-	Fields: graphql.Fields{
-		"user": &graphql.Field{Type: User},
-	},
-})
+// var DcddUserResult = graphql.NewObject(graphql.ObjectConfig{
+// 	Name: "DcddUserResult",
+// 	Fields: graphql.Fields{
+// 		"user": &graphql.Field{Type: DcddUser},
+// 	},
+// })
 
 var DcddUserProfileResult = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserProfileResult",
 	Fields: graphql.Fields{
-		"user_profile": &graphql.Field{Type: UserProfile},
+		"user_profile": &graphql.Field{Type: DcddUserProfile},
 	},
 })
 
@@ -104,17 +104,17 @@ var GenericUserSuccessData = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var DcddUser = graphql.NewObject(graphql.ObjectConfig{
-	Name: "DcddUser",
+var DcddUserResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserResult",
 	Fields: graphql.Fields{
-		"user":       &graphql.Field{Type: User},
-		"profile":    &graphql.Field{Type: UserProfile},
+		"user":       &graphql.Field{Type: DcddUser},
+		"profile":    &graphql.Field{Type: DcddUserProfile},
 	},
 })
 var DcddUserStatus = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserStatus",
 	Fields: graphql.Fields{
-		"user":       &graphql.Field{Type: User},
+		"user":       &graphql.Field{Type: DcddUser},
 	},
 })
 
