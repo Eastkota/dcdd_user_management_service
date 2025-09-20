@@ -7,8 +7,8 @@ import (
 )
 
 // Define UserType
-var User = graphql.NewObject(graphql.ObjectConfig{
-	Name: "User",
+var DcddUser = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUser",
 	Fields: graphql.Fields{
 		"id":              &graphql.Field{Type: scalar.UUID},
 		"user_identifier": &graphql.Field{Type: graphql.String},
@@ -25,8 +25,8 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 })
 
 // Define UserType
-var UserProfile = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfile",
+var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserProfile",
 	Fields: graphql.Fields{
 		"id":                         &graphql.Field{Type: scalar.UUID},
 		"student_id":                 &graphql.Field{Type: scalar.UUID},
