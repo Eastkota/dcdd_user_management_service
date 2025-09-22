@@ -55,7 +55,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"fetchAllDcddUsers": &graphql.Field{
-				Type: graphql.NewList(DcddCreateUserResponse),
+				Type: graphql.NewList(DcddUsersResponse),
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return resolver.FetchAllUsers(p)
 				},
