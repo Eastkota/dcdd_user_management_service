@@ -189,12 +189,16 @@ func (repo *UserRepository) FetchProfileByDcddUserId(ctx context.Context, userId
     }
     return &profile, nil
 }
-func (repo *UserRepository) GetAllDcddUsers() ([]model.DcddUser, error) {
+func (repo *UserRepository) GetAllDcddUsers() ([]model.DcddUser, []model.UserProfile, error) {
 	var users []model.DcddUser
+    var usersProfile []model.UserProfile
 	if err := repo.DB.Find(&users).Error; err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return users, nil
+    if err := repo.DB.Find(&usersProfile).Error; err != nil {
+		return nil, nil, err
+	}
+	return users,usersProfile, nil
 }
 func (repo *UserRepository) GetAllActiveDcddUsers() ([]model.DcddUser, error){
     var users []model.DcddUser

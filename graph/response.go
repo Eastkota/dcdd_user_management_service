@@ -50,6 +50,14 @@ var CreateUserResponse = graphql.NewObject(graphql.ObjectConfig{
 		"error": &graphql.Field{Type: AuthError},
 	},
 })
+
+var DcddUsersResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUsersResponse",
+	Fields: graphql.Fields{
+		"data": &graphql.Field{Type: DccddUserResult},
+		"error": &graphql.Field{Type: AuthError},
+	},
+})
 var UserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserStatusResponse",
 	Fields: graphql.Fields{

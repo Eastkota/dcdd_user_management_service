@@ -4,7 +4,10 @@ type GenericAuthSuccessData struct {
     Message string `json:"message"`
     Code    string `json:"code"`
 }
-
+type DcddUserData struct {
+    User       *DcddUser              `json:"user"`
+    UserProfile *UserProfile          `json:"user_profile"`
+}
 
 type CreateUserSuccessData struct {
     User       *DcddUser              `json:"user"`

@@ -141,11 +141,23 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 }
 
 func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, error) {
-	users, err := ur.Services.GetAllDcddUsers()
-	if err != nil {
-		return nil, err
-	}
-	return users, nil
+	users, userProfiles, err := ur.Services.GetAllDcddUsers()
+    if err != nil {
+        return nil, err
+    }
+
+    responses := make([]map[string]interface{}, len(users))
+    for i := range users {
+        responses[i] = map[string]interface{}{
+            "data": &model.DcddUserData{
+                User:    &users[i],
+                UserProfile: &userProfiles[i],
+            },
+            "error": nil,
+        }
+    }
+
+    return responses, nil
 }
 
 func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}, error) {
