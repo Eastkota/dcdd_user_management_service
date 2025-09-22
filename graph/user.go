@@ -7,8 +7,8 @@ import (
 )
 
 // Define UserType
-var User = graphql.NewObject(graphql.ObjectConfig{
-	Name: "User",
+var DcddUser = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUser",
 	Fields: graphql.Fields{
 		"id":              &graphql.Field{Type: scalar.UUID},
 		"user_identifier": &graphql.Field{Type: graphql.String},
@@ -25,8 +25,8 @@ var User = graphql.NewObject(graphql.ObjectConfig{
 })
 
 // Define UserType
-var UserProfile = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfile",
+var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserProfile",
 	Fields: graphql.Fields{
 		"id":                         &graphql.Field{Type: scalar.UUID},
 		"student_id":                 &graphql.Field{Type: scalar.UUID},
@@ -68,19 +68,20 @@ var UserProfileAndUsers = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var ExistUser = graphql.NewObject(graphql.ObjectConfig{
-	Name: "ExistUser",
+
+var DcddExistUser = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddExistUser",
 	Fields: graphql.Fields{
 		"exist_user": &graphql.Field{Type: graphql.Boolean},
 		"user_id":    &graphql.Field{Type: scalar.UUID},
 	},
 })
-var UserResult = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserResult",
-	Fields: graphql.Fields{
-		"user": &graphql.Field{Type: User},
-	},
-})
+// var DcddUserResult = graphql.NewObject(graphql.ObjectConfig{
+// 	Name: "DcddUserResult",
+// 	Fields: graphql.Fields{
+// 		"user": &graphql.Field{Type: DcddUser},
+// 	},
+// })
 
 var DccddUserResult = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DccddUserResult",
@@ -93,7 +94,7 @@ var DccddUserResult = graphql.NewObject(graphql.ObjectConfig{
 var UserProfileResult = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileResult",
 	Fields: graphql.Fields{
-		"user_profile": &graphql.Field{Type: UserProfile},
+		"user_profile": &graphql.Field{Type: DcddUserProfile},
 	},
 })
 
@@ -111,17 +112,17 @@ var GenericUserSuccessData = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var DcddUser = graphql.NewObject(graphql.ObjectConfig{
-	Name: "DcddUser",
+var DcddUserResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserResult",
 	Fields: graphql.Fields{
-		"user":       &graphql.Field{Type: User},
-		"profile":    &graphql.Field{Type: UserProfile},
+		"user":       &graphql.Field{Type: DcddUser},
+		"profile":    &graphql.Field{Type: DcddUserProfile},
 	},
 })
 var DcddUserStatus = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserStatus",
 	Fields: graphql.Fields{
-		"user":       &graphql.Field{Type: User},
+		"user":       &graphql.Field{Type: DcddUser},
 	},
 })
 

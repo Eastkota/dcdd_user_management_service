@@ -119,7 +119,7 @@ func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.Ge
     }
 
     return &model.GenericUserResponse{
-        Data: &model.UserProfileResult{
+        Data: &model.DcddUserProfileResult{
             UserProfile: result,
         },
         Error: nil,
@@ -133,7 +133,7 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 		return helpers.FormatError(err)
 	}
 	return &model.GenericUserResponse{
-		Data: &model.UserProfileResult{
+		Data: &model.DcddUserProfileResult{
 			UserProfile: result,
 		},
 		Error: nil,

@@ -12,7 +12,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 		Name: "Mutation",
 		Fields: graphql.Fields{
 			"createDcddUser": &graphql.Field{
-				Type: CreateUserResponse,
+				Type: DcddCreateUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"signup_input": &graphql.ArgumentConfig{
 						Type: SignupInput,
@@ -34,7 +34,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 			// 	},
 			// },
 			"updateDcddUser": &graphql.Field{
-				Type: CreateUserResponse,
+				Type: DcddCreateUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{
 						Type: scalar.UUID,
@@ -48,7 +48,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"UpdateDcddUserStatus" : &graphql.Field{
-				Type: UserStatusResponse,
+				Type: DcddUserStatusResponse,
 				Args: graphql.FieldConfigArgument{
 					"userID": &graphql.ArgumentConfig{
 						Type: graphql.NewNonNull(scalar.UUID),
@@ -62,7 +62,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"bulkRegistration": &graphql.Field{
-				Type: GenericUserResponse,
+				Type: DcddGenericUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"csv_path": &graphql.ArgumentConfig{
 						Type: graphql.String,
