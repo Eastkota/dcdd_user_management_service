@@ -21,7 +21,7 @@ RUN go build -o authservice
 
 
 # Expose the necessary port
-EXPOSE 8093
+EXPOSE 8097
 
 # Command to run the service
 CMD ["./dcddusermangementservice"]
