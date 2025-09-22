@@ -68,7 +68,6 @@ var UserProfileAndUsers = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-
 var ExistUser = graphql.NewObject(graphql.ObjectConfig{
 	Name: "ExistUser",
 	Fields: graphql.Fields{
@@ -157,4 +156,58 @@ var AuthDzongkhag = graphql.NewObject(graphql.ObjectConfig{
 		"name": &graphql.Field{Type: graphql.String},
 	},
 })
+var School = graphql.NewObject(graphql.ObjectConfig{
+	Name: "School",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: graphql.String},
+		"name":       &graphql.Field{Type: graphql.String},
+		"pvt_public":    &graphql.Field{Type: graphql.String},
+	},
+})
+var SchoolResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SchoolResult",
+	Fields: graphql.Fields{
+		"school": &graphql.Field{Type: graphql.NewList(School)},
+	},
+})
+var Grade = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Grade",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+var GradeResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "GradeResult",
+	Fields: graphql.Fields{
+		"grade": &graphql.Field{Type: graphql.NewList(Grade)},
+	},
+})
+var Eccd = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Eccd",
+	Fields: graphql.Fields{
+		"id":         &graphql.Field{Type: scalar.UUID},
+		"name":       &graphql.Field{Type: graphql.String},
+		"sort":       &graphql.Field{Type: graphql.String},
+	},
+})
+var EccdResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "EccdResult",
+	Fields: graphql.Fields{
+		"eccd": &graphql.Field{Type: graphql.NewList(Eccd)},
+	},
+})
 
+var Dzongkhag = graphql.NewObject(graphql.ObjectConfig{
+	Name: "Dzongkhag",
+	Fields: graphql.Fields{
+		"id":   &graphql.Field{Type: scalar.UUID},
+		"name": &graphql.Field{Type: graphql.String},
+	},
+})
+var DzongkhagResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DzongkhagResult",
+	Fields: graphql.Fields{
+		"dzongkhags": &graphql.Field{Type: graphql.NewList(Dzongkhag)},
+	},
+})

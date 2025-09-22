@@ -82,6 +82,19 @@ func (as *UserService) GetAllActiveDcddUsers() ([]model.DcddUser, error) {
 func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
     return as.Repository.FetchDcddUsersByDateRange(fromDate, toDate)
 }
+func (as *UserService) FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error) {
+	return as.Repository.FetchDzongkhag(ctx)
+}
+func (as *UserService) FetchGrade(ctx context.Context) ([]model.Grade, error) {
+	return as.Repository.FetchGrade(ctx)
+}
+func (as *UserService) FetchSchool(ctx context.Context, dzongkhagId uuid.UUID) ([]model.School, error) {
+	fmt.Println("In service - FetchSchool", dzongkhagId)
+	return as.Repository.FetchSchool(ctx, dzongkhagId)
+}
+func (as *UserService) FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]model.Eccd, error) {
+	return as.Repository.FetchEccd(ctx, dzongkhagId)
+}
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
     reader := csv.NewReader(csvData)

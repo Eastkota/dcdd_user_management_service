@@ -22,4 +22,8 @@ type Services interface {
 	BulkRegistration(ctx context.Context, csvData io.Reader) (error)
 
 	FetchProfileByDcddUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error)
+	FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error)
+	FetchGrade(ctx context.Context) ([]model.Grade, error)
+	FetchSchool(ctx context.Context, schoolId uuid.UUID) ([]model.School, error)
+	FetchEccd(ctx context.Context, schoolId  uuid.UUID) ([]model.Eccd, error)
 }
