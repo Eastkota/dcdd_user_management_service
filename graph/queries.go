@@ -22,7 +22,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					}
 
 					serviceInfo := model.Service{
-						Name:    "DcddUserManagementService",
+						Name:    "dcddusermanagementservice",
 						Version: "1.0.0",
 						Schema:  helpers.ConvertSchemaToString(schema),
 					}
@@ -44,7 +44,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"FetchProfileByDcddUserId": &graphql.Field{
-				Type: UserProfileResponse,
+				Type: DcddUserProfileResponse,
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{
 						Type: scalar.UUID,
