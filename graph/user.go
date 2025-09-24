@@ -86,13 +86,13 @@ var DcddExistUser = graphql.NewObject(graphql.ObjectConfig{
 var DccddUserResult = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DccddUserResult",
 	Fields: graphql.Fields{
-		"user": &graphql.Field{Type: User},
-		"user_profile": &graphql.Field{Type: UserProfile},
+		"user": &graphql.Field{Type: DcddUser},
+		"user_profile": &graphql.Field{Type: DcddUserProfile},
 	},
 })
 
-var UserProfileResult = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileResult",
+var DcddUserProfileResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserProfileResult",
 	Fields: graphql.Fields{
 		"user_profile": &graphql.Field{Type: DcddUserProfile},
 	},

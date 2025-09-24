@@ -27,7 +27,7 @@ var SingleUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var UserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
+var DcddUserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "UserProfileResponse",
 	Fields: graphql.Fields{
 		"data":  &graphql.Field{Type: DcddUserProfileResult},
@@ -55,11 +55,11 @@ var DcddUsersResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUsersResponse",
 	Fields: graphql.Fields{
 		"data": &graphql.Field{Type: DccddUserResult},
-		"error": &graphql.Field{Type: AuthError},
+		"error": &graphql.Field{Type: DcddAuthError},
 	},
 })
-var UserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserStatusResponse",
+var DcddUserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserStatusResponse",
 	Fields: graphql.Fields{
 		"data":  &graphql.Field{Type: DcddUserStatus},
 		"error": &graphql.Field{Type: DcddAuthError},
