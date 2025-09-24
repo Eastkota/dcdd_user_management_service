@@ -72,7 +72,7 @@ func (as *UserService) UpdateDcddUserStatus(ctx context.Context, userID uuid.UUI
 	return as.Repository.UpdateDcddUserStatus(ctx, userID, status)
 }
 
-func (as *UserService) GetAllDcddUsers() ([]model.DcddUser, error) {
+func (as *UserService) GetAllDcddUsers() ([]model.DcddUser, []model.UserProfile, error) {
 	return as.Repository.GetAllDcddUsers()
 }
 
