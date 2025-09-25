@@ -105,8 +105,8 @@ var AuthGenericSuccessData = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var GenericUserSuccessData = graphql.NewObject(graphql.ObjectConfig{
-	Name: "GenericUserSuccessData",
+var GenericDcddUserSuccessData = graphql.NewObject(graphql.ObjectConfig{
+	Name: "GenericDcddUserSuccessData",
 	Fields: graphql.Fields{
 		"message": &graphql.Field{Type: graphql.String},
 	},
