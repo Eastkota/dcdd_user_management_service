@@ -275,14 +275,31 @@ func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.Generic
     if !ok {
         return helpers.FormatError(fmt.Errorf("csv_path argument is required"))
     }
-
-    csvFile, err := os.Open(filePath)
-    if err != nil {
-        return helpers.FormatError(fmt.Errorf("failed to open file at path '%s': %w", filePath, err))
+    
+    // Adjust path for file system access
+    fileSystemPath := filePath
+    if len(filePath) > 0 && filePath[0] == '/' {
+        fileSystemPath = filePath[1:] 
     }
-    defer csvFile.Close()
 
+    csvFile, err := os.Open(fileSystemPath)
+    if err != nil {
+        return helpers.FormatError(fmt.Errorf("failed to open file at path '%s': %w", fileSystemPath, err))
+    }
+    
+    // Defer closing the file
+    defer csvFile.Close() 
+    defer func() {
+        if r := os.Remove(fileSystemPath); r != nil {
+            fmt.Printf("Warning: Failed to delete CSV file '%s': %v\n", fileSystemPath, r)
+        } else {
+            fmt.Printf("Successfully deleted CSV file: %s\n", fileSystemPath)
+        }
+    }()
+    
+    // Call the service function to perform the registration
     err = ar.Services.BulkRegistration(p.Context, csvFile)
+    
     if err != nil {
         return &model.GenericUserResponse{
             Data: nil,
@@ -292,11 +309,12 @@ func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.Generic
 
     return &model.GenericUserResponse{
         Data: &model.BulkSuccessResult{
-            Message: "Bulk registration completed successfully",
+            Message: "Bulk registration completed successfully and file deleted.", // Updated message
         },
         Error: nil,
     }
 }
+
 func (ur *UserResolver) FetchDzongkhags(p graphql.ResolveParams) *model.GenericUserResponse {
 	result, err := ur.Services.FetchDzongkhag(p.Context)
 	if err != nil {
