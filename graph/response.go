@@ -11,6 +11,14 @@ var GenericAuthResponse = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var DcddUserResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserResponse",
+	Fields: graphql.Fields{
+		"data": &graphql.Field{Type: graphql.NewList(DcddUser)},
+		"error": &graphql.Field{Type: DcddUserError},
+	},
+})
+
 var CheckForDcddExistingUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "CheckForDcddExistingUserResponse",
 	Fields: graphql.Fields{
@@ -28,9 +36,9 @@ var SingleUserResponse = graphql.NewObject(graphql.ObjectConfig{
 })
 
 var DcddUserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserProfileResponse",
+	Name: "DcddUserProfileResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: UserProfileResult},
+		"data":  &graphql.Field{Type: DcddUserProfileResult},
 		"error": &graphql.Field{Type: DcddUserError},
 	},
 })
@@ -38,7 +46,7 @@ var DcddUserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
 var DcddGenericUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddGenericUserResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: GenericUserSuccessData},
+		"data":  &graphql.Field{Type: GenericDcddUserSuccessData},
 		"error": &graphql.Field{Type: DcddUserError},
 	},
 })
@@ -46,18 +54,20 @@ var DcddGenericUserResponse = graphql.NewObject(graphql.ObjectConfig{
 var DcddCreateUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddCreateUserResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: DcddUser},
+		"data":  &graphql.Field{Type: DcddUserResult},
 		"error": &graphql.Field{Type: DcddAuthError},
 	},
 })
 
-var DcddUsersResponse = graphql.NewObject(graphql.ObjectConfig{
-	Name: "DcddUsersResponse",
+var DcddUsersByDateRangeResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUsersByDateRangeResponse",
 	Fields: graphql.Fields{
-		"data": &graphql.Field{Type: DccddUserResult},
-		"error": &graphql.Field{Type: DcddAuthError},
+		"data": &graphql.Field{Type: graphql.NewList(DcddUserResult)},
+		"error": &graphql.Field{Type: DcddAuthError },
 	},
 })
+
+
 var DcddUserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserStatusResponse",
 	Fields: graphql.Fields{

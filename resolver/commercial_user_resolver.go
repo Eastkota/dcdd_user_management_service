@@ -21,7 +21,7 @@ func NewUserResolver(service services.Services) *UserResolver {
 	return &UserResolver{Services: service}
 }
 
-func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	field := p.Args["field"].(string)
 	value := p.Args["value"].(string)
 	result, err := ar.Services.CheckForDcddExistingUser(field, value)
@@ -30,7 +30,7 @@ func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model
 	}
 
 	if result == nil {
-        return &model.GenericUserResponse{
+        return &model.DcddGenericUserResponse{
             Data: map[string]interface{}{
                 "exist_user": false,
                 "user_id":    nil,
@@ -38,8 +38,7 @@ func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model
             Error: nil,
         }
     }
-	
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: map[string]interface{}{
 			"exist_user": result != nil,
 			"user_id":    result.ID,
@@ -49,7 +48,7 @@ func (ar *UserResolver) CheckForDcddExistingUser(p graphql.ResolveParams) *model
 
 }
 
-func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 
 	var signupInput model.SignupInput
 	inputData := p.Args["signup_input"].(map[string]interface{})
@@ -67,7 +66,9 @@ func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.GenericUs
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+    fmt.Println("Returning user profile:", user, profile)
+
+	return &model.DcddGenericUserResponse{
 		Data: &model.CreateUserSuccessData{
 			User:    user,
 			Profile: profile,
@@ -76,7 +77,7 @@ func (ar *UserResolver) CreateDcddUser(p graphql.ResolveParams) *model.GenericUs
 	}
 }
 
-func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     var userProfileInput model.UserProfileInput
     inputData := p.Args["input"].(map[string]interface{})
     jsonData, err := json.Marshal(inputData)
@@ -118,7 +119,7 @@ func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.Ge
         return helpers.FormatError(err)
     }
 
-    return &model.GenericUserResponse{
+    return &model.DcddGenericUserResponse{
         Data: &model.DcddUserProfileResult{
             UserProfile: result,
         },
@@ -126,13 +127,13 @@ func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.Ge
     }
 }
 
-func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	userID := p.Args["user_id"].(uuid.UUID)
 	result, err := ur.Services.FetchProfileByDcddUserId(p.Context, userID)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.DcddUserProfileResult{
 			UserProfile: result,
 		},
@@ -141,51 +142,70 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 }
 
 func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, error) {
-	users, userProfiles, err := ur.Services.GetAllDcddUsers()
+	users, err := ur.Services.GetAllDcddUsers()
     if err != nil {
-        return nil, err
+        return map[string]interface{}{
+            "data":  nil,
+            "error": err.Error(),
+        }, nil
     }
 
-    responses := make([]map[string]interface{}, len(users))
-    for i := range users {
-        responses[i] = map[string]interface{}{
-            "data": &model.DcddUserData{
-                User:    &users[i],
-                UserProfile: &userProfiles[i],
-            },
-            "error": nil,
-        }
-    }
-
-    return responses, nil
+    return map[string]interface{}{
+        "data":  users,
+        "error": nil,
+    }, nil
 }
 
 func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}, error) {
     users, err := ur.Services.GetAllActiveDcddUsers()
     if err != nil {
-        return nil, err
+        return map[string]interface{}{
+            "data":  nil,
+            "error": err.Error(),
+        }, nil
     }
-    return users, nil
+
+    return map[string]interface{}{
+        "data":  users,
+        "error": nil,
+    }, nil
 }
-func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams)(interface{}, error) {
+
+func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams) (interface{}, error) {
     fromDateStr, _ := p.Args["fromDate"].(string)
     toDateStr, _ := p.Args["toDate"].(string)
 
-    // Parse the dates (expects format YYYY-MM-DD)
     fromDate, err := time.Parse("2006-01-02", fromDateStr)
     if err != nil {
-        return nil, err
+        return map[string]interface{}{
+            "data":  nil,
+            "error": err.Error(),
+        }, nil
     }
     toDate, err := time.Parse("2006-01-02", toDateStr)
     if err != nil {
-        return nil, err
+        return map[string]interface{}{
+            "data":  nil,
+            "error": err.Error(),
+        }, nil
     }
 
-    return ur.Services.FetchDcddUsersByDateRange(fromDate, toDate)
+    users, err := ur.Services.FetchDcddUsersByDateRange(fromDate, toDate)
+    if err != nil {
+        return map[string]interface{}{
+            "data":  nil,
+            "error": err.Error(),
+        }, nil
+    }
+
+    return map[string]interface{}{
+        "data":  users,
+        "error": nil,
+    }, nil
 }
 
 
-func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     var signupInput model.SignupInput
     userID, ok := p.Args["user_id"].(uuid.UUID)
     if !ok {
@@ -212,7 +232,7 @@ func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUs
         return helpers.FormatError(err)
     }
 
-    return &model.GenericUserResponse{
+    return &model.DcddGenericUserResponse{
         Data: &model.CreateUserSuccessData{
             User:    user,
             Profile: profile,
@@ -220,7 +240,7 @@ func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.GenericUs
         Error: nil,
     }
 }
-func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.DcddGenericUserResponse {
      ctx := p.Context
     userIDStr, ok := p.Args["userID"].(string)
     if !ok || userIDStr == "" {
@@ -237,7 +257,7 @@ func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserRe
         return helpers.FormatError(err)
     }
 
-    return &model.GenericUserResponse{
+    return &model.DcddGenericUserResponse{
         Data: &model.DeleteUserResult{
             User: updatedUser,
         },
@@ -246,7 +266,7 @@ func (ur *UserResolver) DeleteUser(p graphql.ResolveParams) *model.GenericUserRe
 }
 
 
-func (ur *UserResolver) UpdateDcddUserStatus(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) UpdateDcddUserStatus(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	userID, ok := p.Args["userID"].(uuid.UUID)
 	if !ok || userID == uuid.Nil {
 		return helpers.FormatError(fmt.Errorf("userID is required"))
@@ -262,7 +282,7 @@ func (ur *UserResolver) UpdateDcddUserStatus(p graphql.ResolveParams) *model.Gen
 		return helpers.FormatError(err)
 	}
 
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.DeleteUserResult{
 			User: result,
 		},
@@ -270,39 +290,57 @@ func (ur *UserResolver) UpdateDcddUserStatus(p graphql.ResolveParams) *model.Gen
 	}
 }
 
-func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     filePath, ok := p.Args["csv_path"].(string)
     if !ok {
         return helpers.FormatError(fmt.Errorf("csv_path argument is required"))
     }
-
-    csvFile, err := os.Open(filePath)
-    if err != nil {
-        return helpers.FormatError(fmt.Errorf("failed to open file at path '%s': %w", filePath, err))
+    
+    // Adjust path for file system access
+    fileSystemPath := filePath
+    if len(filePath) > 0 && filePath[0] == '/' {
+        fileSystemPath = filePath[1:] 
     }
-    defer csvFile.Close()
 
-    err = ar.Services.BulkRegistration(p.Context, csvFile)
+    csvFile, err := os.Open(fileSystemPath)
     if err != nil {
-        return &model.GenericUserResponse{
+        return helpers.FormatError(fmt.Errorf("failed to open file at path '%s': %w", fileSystemPath, err))
+    }
+    
+    // Defer closing the file
+    defer csvFile.Close() 
+    defer func() {
+        if r := os.Remove(fileSystemPath); r != nil {
+            fmt.Printf("Warning: Failed to delete CSV file '%s': %v\n", fileSystemPath, r)
+        } else {
+            fmt.Printf("Successfully deleted CSV file: %s\n", fileSystemPath)
+        }
+    }()
+    
+    // Call the service function to perform the registration
+    err = ar.Services.BulkRegistration(p.Context, csvFile)
+    
+    if err != nil {
+        return &model.DcddGenericUserResponse{
             Data: nil,
             Error: &model.UserError{Message: err.Error()},
         }
     }
 
-    return &model.GenericUserResponse{
+    return &model.DcddGenericUserResponse{
         Data: &model.BulkSuccessResult{
-            Message: "Bulk registration completed successfully",
+            Message: "Bulk registration completed successfully and file deleted.", // Updated message
         },
         Error: nil,
     }
 }
-func (ur *UserResolver) FetchDzongkhags(p graphql.ResolveParams) *model.GenericUserResponse {
+
+func (ur *UserResolver) FetchDzongkhags(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	result, err := ur.Services.FetchDzongkhag(p.Context)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.DzongkhagResult{
 			Dzongkhags: result,
 		},
@@ -310,13 +348,13 @@ func (ur *UserResolver) FetchDzongkhags(p graphql.ResolveParams) *model.GenericU
 	}
 }
 
-func (ur *UserResolver) FetchSchool(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchSchool(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	dzongkhagId := p.Args["dzongkhag_id"].(uuid.UUID)
 	result, err := ur.Services.FetchSchool(p.Context, dzongkhagId)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.SchoolResult{
 			School: result,
 		},
@@ -324,13 +362,13 @@ func (ur *UserResolver) FetchSchool(p graphql.ResolveParams) *model.GenericUserR
 	}
 }
 
-func (ur *UserResolver) FetchEccd(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchEccd(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	dzongkhagId := p.Args["dzongkhag_id"].(uuid.UUID)
 	result, err := ur.Services.FetchEccd(p.Context, dzongkhagId)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.EccdResult{
 			Eccd: result,
 		},
@@ -338,12 +376,12 @@ func (ur *UserResolver) FetchEccd(p graphql.ResolveParams) *model.GenericUserRes
 	}
 }
 
-func (ur *UserResolver) FetchGrade(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchGrade(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	result, err := ur.Services.FetchGrade(p.Context)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.GradeResult{
 			Grades: result,
 		},
@@ -351,12 +389,12 @@ func (ur *UserResolver) FetchGrade(p graphql.ResolveParams) *model.GenericUserRe
 	}
 }
 
-func (ur *UserResolver) FetchDzongkhag(p graphql.ResolveParams) *model.GenericUserResponse {
+func (ur *UserResolver) FetchDzongkhag(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 	result, err := ur.Services.FetchDzongkhag(p.Context)
 	if err != nil {
 		return helpers.FormatError(err)
 	}
-	return &model.GenericUserResponse{
+	return &model.DcddGenericUserResponse{
 		Data: &model.DzongkhagResult{
 			Dzongkhags: result,
 		},

@@ -8,8 +8,8 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func AuthMiddleware(next func(p graphql.ResolveParams) *model.GenericUserResponse) func(p graphql.ResolveParams) *model.GenericUserResponse {
-	return func(p graphql.ResolveParams) *model.GenericUserResponse {
+func AuthMiddleware(next func(p graphql.ResolveParams) *model.DcddGenericUserResponse) func(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+	return func(p graphql.ResolveParams) *model.DcddGenericUserResponse {
 		ctx := p.Context
 		user := ctx.Value(model.UserKey).(*model.DcddUser)
 		if user == nil {

@@ -55,31 +55,27 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"fetchAllDcddUsers": &graphql.Field{
-				Type: graphql.NewList(DcddUsersResponse),
+				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return resolver.FetchAllUsers(p)
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
-				Type: graphql.NewList(UserProfileAndUsers),
+				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return resolver.FetchAllActiveUsers(p)
 				},
 			},
 			"FetchDcddUsersByDateRange": &graphql.Field{
-				Type: graphql.NewList(UserProfileAndUsers), // or just DcddUser type if you want only users
+				Type: DcddUsersByDateRangeResponse,
 				Args: graphql.FieldConfigArgument{
-					"fromDate": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String), // YYYY-MM-DD
-					},
-					"toDate": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String),
-					},
+					"fromDate": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
+					"toDate":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 				},
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchDcddUsersByDateRange(p)
-				},
+				Resolve: resolver.FetchDcddUsersByDateRange,
 			},
+
+
 			"fetchSchools": &graphql.Field{
 				Type: SchoolResponse,
 				Args: graphql.FieldConfigArgument{

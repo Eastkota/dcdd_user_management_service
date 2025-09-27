@@ -15,9 +15,9 @@ type Services interface {
 	CreateDcddUser(signupData model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateDcddUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	GetAllDcddUsers() ([]model.DcddUser, []model.UserProfile, error)
-	GetAllActiveDcddUsers() ([]model.DcddUser, error)
-	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
+	GetAllDcddUsers() ([]model.DcddUserAndProfile, error)
+	GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error)
+	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error)
 	UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(ctx context.Context, csvData io.Reader) (error)
 

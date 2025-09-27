@@ -15,23 +15,19 @@ const (
 type DcddUser struct {
     ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
     UserIdentifier string    `gorm:"type:varchar(32);unique;not null" json:"user_identifier"`
-    Email          string    `gorm:"type:varchar(100);unique" json:"email"`
-    MobileNo       string    `gorm:"type:varchar(20);unique" json:"mobile_no"`
+    Email          *string    `gorm:"type:varchar(100);unique" json:"email"`
+    MobileNo       *string    `gorm:"type:varchar(20);unique" json:"mobile_no"`
     Password       string    `gorm:"type:text;not null" json:"password_hash"`
     Status         string    `gorm:"type:varchar(50);default:active;not null" json:"status"`
     Category  	   string    `gorm:"not null" json:"category"`
     StudentId 	   string    `gorm:"type:varchar(50);unique" json:"student_id"`
     LoginId        string    `gorm:"type:varchar(20);unique;not null" json:"login_id"`
-    CreatedAt      time.Time `json:"created_at"`
-    UpdatedAt      time.Time `json:"updated_at"`
+    CreatedAt      time.Time `grom:"type:timestamptz" json:"created_at"`
+    UpdatedAt      time.Time `grom:"type:timestamptz" json:"updated_at"`
 }
 
 func (DcddUser) TableName() string {
-    return "dcdd_auth.dcdd_users"
-}
-
-type UserResult struct {
-    DcddUser *DcddUser `json:"user"`
+    return "dcdd_auth.dcdd_users" 
 }
 
 type UserProfile struct {
@@ -57,6 +53,11 @@ type UserProfile struct {
 
 func (UserProfile) TableName() string {
     return "dcdd_user_data.dcdd_user_profiles"
+}
+type DcddUserAndProfile struct {
+	User *DcddUser `json:"user"`
+	UserProfile *UserProfile `json:"user_profile"`
+	 
 }
 type School struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`

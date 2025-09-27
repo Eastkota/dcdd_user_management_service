@@ -93,8 +93,8 @@ func (repo *UserRepository) CreateDcddUser(signupInput *model.SignupInput) (*mod
             // If no user is found, create a new one.
             newUser := model.DcddUser{
                 ID:             uuid.New(),
-                MobileNo:       signupInput.MobileNo,
-                Email:          signupInput.Email,
+                MobileNo:       helpers.StringPtr(signupInput.MobileNo),
+                Email:          helpers.StringPtr(signupInput.Email),
                 UserIdentifier: identifier,
                 Password:       hashedPassword,
                 Status:         "Active",
@@ -168,11 +168,6 @@ func (repo *UserRepository) CreateDcddUserProfile(tx *gorm.DB, inputData model.U
        userProfile.EccdId = inputData.EccdId
    }
 
-
-    // profile, err := repo.FetchProfileByDcddUserId(context.Background(), inputData.UserId)
-    // if err != nil {
-    //     return nil, fmt.Errorf("failed to fetch created profile: %v", err)
-    // }
     return &userProfile, nil
 }
 
@@ -189,34 +184,101 @@ func (repo *UserRepository) FetchProfileByDcddUserId(ctx context.Context, userId
     }
     return &profile, nil
 }
-func (repo *UserRepository) GetAllDcddUsers() ([]model.DcddUser, []model.UserProfile, error) {
+func (repo *UserRepository) FetchAllDcddUsers() ([]model.DcddUserAndProfile, error) {
 	var users []model.DcddUser
-    var usersProfile []model.UserProfile
 	if err := repo.DB.Find(&users).Error; err != nil {
-		return nil, nil, err
+		return nil, fmt.Errorf("failed to fetch users: %w", err)
 	}
-    if err := repo.DB.Find(&usersProfile).Error; err != nil {
-		return nil, nil, err
-	}
-	return users,usersProfile, nil
-}
-func (repo *UserRepository) GetAllActiveDcddUsers() ([]model.DcddUser, error){
-    var users []model.DcddUser
-    if err := repo.DB.Where("status = ?", "Active").Find(&users).Error; err != nil {
-        return nil, fmt.Errorf("failed to fetch active users: %w", err)
-    }
-    return users, nil
-}
-func (repo *UserRepository) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
-    var users []model.DcddUser
+    // fmt.Println("Fetched users:", users) // <-- add this
+	results := make([]model.DcddUserAndProfile, 0, len(users))
 
-    err := repo.DB.Where("created_at BETWEEN ? AND ?", fromDate, toDate).Find(&users).Error
-    if err != nil {
+	for _, user := range users {
+		var profile model.UserProfile
+		err := repo.DB.Where("user_id = ?", user.ID).First(&profile).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("failed to fetch profile for user %d: %w", user.ID, err)
+		}
+		results = append(results, model.DcddUserAndProfile{
+			User:    &user,
+			UserProfile: &profile,
+		})
+	}
+
+	return results, nil
+}
+func (repo *UserRepository) GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error){
+    var users []model.DcddUser
+	if err := repo.DB.Where("status = ?", "Active").Find(&users).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch users: %w", err)
+	}
+    // fmt.Println("Fetched users:", users) // <-- add this
+	results := make([]model.DcddUserAndProfile, 0, len(users))
+
+	for _, user := range users {
+		var profile model.UserProfile
+		err := repo.DB.Where("user_id = ?", user.ID).First(&profile).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return nil, fmt.Errorf("failed to fetch profile for user %d: %w", user.ID, err)
+		}
+		results = append(results, model.DcddUserAndProfile{
+			User:    &user,
+			UserProfile: &profile,
+		})
+	}
+
+	return results, nil
+}
+
+func (repo *UserRepository) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error) {
+    fromDate = fromDate.UTC()
+    toDate = toDate.Add(23*time.Hour + 59*time.Minute + 59*time.Second).UTC()
+
+    var users []model.DcddUser
+    if err := repo.DB.
+        Where("created_at BETWEEN ? AND ?", fromDate, toDate).
+        Find(&users).Error; err != nil {
         return nil, fmt.Errorf("failed to fetch users between %v and %v: %w", fromDate, toDate, err)
     }
 
-    return users, nil
+    if len(users) == 0 {
+        return []model.DcddUserAndProfile{}, nil
+    }
+
+    fmt.Println(len(users))
+
+    //Collect user IDs
+    userIDs := make([]uuid.UUID, len(users))
+    for i, u := range users {
+        userIDs[i] = u.ID
+    }
+
+    //Fetch profiles by user_id
+    var profiles []model.UserProfile
+    if err := repo.DB.
+        Where("user_id IN ?", userIDs).
+        Find(&profiles).Error; err != nil {
+        return nil, fmt.Errorf("failed to fetch profiles: %w", err)
+    }
+
+    //Map profiles to their user_id
+    profileMap := make(map[uuid.UUID]*model.UserProfile)
+    for i, p := range profiles {
+        profileMap[p.UserId] = &profiles[i]
+    }
+
+    //Combine into DcddUserAndProfile
+    var results []model.DcddUserAndProfile
+    for _, u := range users {
+        results = append(results, model.DcddUserAndProfile{
+            User:        &u,
+            UserProfile: profileMap[u.ID],
+        })
+    }
+
+    return results, nil
 }
+
+
 
 
 func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
@@ -319,8 +381,8 @@ func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) (
 
             newUser := model.DcddUser{
                 ID:             uuid.New(),
-                MobileNo:       signupInput.MobileNo,
-                Email:          signupInput.Email,
+                MobileNo:       helpers.StringPtr(signupInput.MobileNo),
+                Email:          helpers.StringPtr(signupInput.Email),
                 UserIdentifier: identifier,
                 Password:       hashedPassword,
                 Status:         "Active",

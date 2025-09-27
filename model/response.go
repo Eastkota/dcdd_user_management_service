@@ -5,13 +5,14 @@ type GenericAuthSuccessData struct {
     Code    string `json:"code"`
 }
 type DcddUserData struct {
-    User       *DcddUser              `json:"user"`
-    UserProfile *UserProfile          `json:"user_profile"`
+    Users       *DcddUser              `json:"user"`
+    UserProfiles *UserProfile          `json:"user_profile"`
+    Error       *UserError            `json:"error"`
 }
 
 type CreateUserSuccessData struct {
     User       *DcddUser              `json:"user"`
-    Profile    *UserProfile   `json:"profile"`
+    Profile    *UserProfile   `json:"user_profile"`
 }
 type DeleteUserResult struct {
     User       *DcddUser              `json:"user"`
@@ -21,9 +22,9 @@ type BulkSuccessResult struct {
     Code     string      `json:"user"`
 }
 
-type GenericUserResponse struct {
-	Data  interface{}
-	Error *UserError
+type DcddGenericUserResponse struct {
+	Data  interface{} `json:"data"`
+	Error *UserError  `json:"error"`
 }
 
 type DcddUserProfileResult struct {

@@ -16,3 +16,4 @@ func CleanInterfaceData(data map[string]interface{}) map[string]interface{} {
 	}
     return cleaned
 }
+

@@ -43,6 +43,9 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
 	}))
+
+	e.POST("/upload-csv-file", handlers.UploadCSVFile)
+	
 	e.POST("/graphql", handlers.Handler)
 	e.Logger.Fatal(e.Start(":8097"))
 }

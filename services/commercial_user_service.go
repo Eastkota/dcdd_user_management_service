@@ -72,14 +72,15 @@ func (as *UserService) UpdateDcddUserStatus(ctx context.Context, userID uuid.UUI
 	return as.Repository.UpdateDcddUserStatus(ctx, userID, status)
 }
 
-func (as *UserService) GetAllDcddUsers() ([]model.DcddUser, []model.UserProfile, error) {
-	return as.Repository.GetAllDcddUsers()
+func (as *UserService) GetAllDcddUsers() ([]model.DcddUserAndProfile, error) {
+	users, err := as.Repository.FetchAllDcddUsers()
+    return users, err
 }
 
-func (as *UserService) GetAllActiveDcddUsers() ([]model.DcddUser, error) {
+func (as *UserService) GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error) {
     return as.Repository.GetAllActiveDcddUsers()
 }
-func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error) {
+func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error) {
     return as.Repository.FetchDcddUsersByDateRange(fromDate, toDate)
 }
 func (as *UserService) FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error) {

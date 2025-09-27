@@ -14,9 +14,9 @@ type Repository interface {
 	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateDcddUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
-	GetAllDcddUsers() ([]model.DcddUser,[]model.UserProfile, error)
-	GetAllActiveDcddUsers() ([]model.DcddUser, error)
-	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUser, error)
+	FetchAllDcddUsers() ([]model.DcddUserAndProfile, error)
+	GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error)
+	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error)
 	UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error)
 	BulkRegistration(signupInputs []model.SignupInput) (error) 
 
