@@ -297,5 +297,70 @@ func (ar *UserResolver) BulkRegistration(p graphql.ResolveParams) *model.Generic
         Error: nil,
     }
 }
+func (ur *UserResolver) FetchDzongkhags(p graphql.ResolveParams) *model.GenericUserResponse {
+	result, err := ur.Services.FetchDzongkhag(p.Context)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+	return &model.GenericUserResponse{
+		Data: &model.DzongkhagResult{
+			Dzongkhags: result,
+		},
+		Error: nil,
+	}
+}
 
+func (ur *UserResolver) FetchSchool(p graphql.ResolveParams) *model.GenericUserResponse {
+	dzongkhagId := p.Args["dzongkhag_id"].(uuid.UUID)
+	result, err := ur.Services.FetchSchool(p.Context, dzongkhagId)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+	return &model.GenericUserResponse{
+		Data: &model.SchoolResult{
+			School: result,
+		},
+		Error: nil,
+	}
+}
+
+func (ur *UserResolver) FetchEccd(p graphql.ResolveParams) *model.GenericUserResponse {
+	dzongkhagId := p.Args["dzongkhag_id"].(uuid.UUID)
+	result, err := ur.Services.FetchEccd(p.Context, dzongkhagId)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+	return &model.GenericUserResponse{
+		Data: &model.EccdResult{
+			Eccd: result,
+		},
+		Error: nil,
+	}
+}
+
+func (ur *UserResolver) FetchGrade(p graphql.ResolveParams) *model.GenericUserResponse {
+	result, err := ur.Services.FetchGrade(p.Context)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+	return &model.GenericUserResponse{
+		Data: &model.GradeResult{
+			Grades: result,
+		},
+		Error: nil,
+	}
+}
+
+func (ur *UserResolver) FetchDzongkhag(p graphql.ResolveParams) *model.GenericUserResponse {
+	result, err := ur.Services.FetchDzongkhag(p.Context)
+	if err != nil {
+		return helpers.FormatError(err)
+	}
+	return &model.GenericUserResponse{
+		Data: &model.DzongkhagResult{
+			Dzongkhags: result,
+		},
+		Error: nil,
+	}
+}
 

@@ -80,6 +80,40 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return resolver.FetchDcddUsersByDateRange(p)
 				},
 			},
+			"fetchSchools": &graphql.Field{
+				Type: SchoolResponse,
+				Args: graphql.FieldConfigArgument{
+					"dzongkhag_id": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(scalar.UUID),
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchSchool(p), nil
+				},
+			},
+			"fetchEccd": &graphql.Field{
+				Type: EccdResponse,
+				Args: graphql.FieldConfigArgument{
+					"dzongkhag_id": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(scalar.UUID),
+					},
+				},
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchEccd(p), nil
+				},
+			},
+			"fetchDzongkhag": &graphql.Field{
+				Type: DzongkhagResponse,
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchDzongkhag(p), nil
+				},
+			},
+			"fetchGrade": &graphql.Field{
+				Type: GradeResponse,
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					return resolver.FetchGrade(p), nil
+				},
+			},
 		},
 	})
 }

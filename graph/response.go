@@ -30,7 +30,7 @@ var SingleUserResponse = graphql.NewObject(graphql.ObjectConfig{
 var DcddUserProfileResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserProfileResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: DcddUserProfileResult},
+		"data":  &graphql.Field{Type: UserProfileResult},
 		"error": &graphql.Field{Type: DcddUserError},
 	},
 })
@@ -66,3 +66,34 @@ var DcddUserStatusResponse = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
+var SchoolResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "SchoolResponse",
+	Fields: graphql.Fields{
+		"data":  &graphql.Field{Type: SchoolResult},
+		"error": &graphql.Field{Type: DcddAuthError},
+	},
+})
+
+var GradeResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "GradeResponse",
+	Fields: graphql.Fields{
+		"data":  &graphql.Field{Type: GradeResult},
+		"error": &graphql.Field{Type: DcddAuthError},
+	},
+})
+
+var EccdResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "EccdResponse",
+	Fields: graphql.Fields{
+		"data":  &graphql.Field{Type: EccdResult},
+		"error": &graphql.Field{Type: DcddAuthError},
+	},
+})
+
+var DzongkhagResponse = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DzongkhagResponse",
+	Fields: graphql.Fields{
+		"data":  &graphql.Field{Type: DzongkhagResult},
+		"error": &graphql.Field{Type: DcddAuthError},
+	},
+})

@@ -22,4 +22,8 @@ type Repository interface {
 
 	FetchProfileByDcddUserId(ctx context.Context, userId uuid.UUID) (*model.UserProfile, error)
 	FetchDcddUserByLoginID(field, value string) (*model.DcddUser, error)
+	FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error)
+	FetchGrade(ctx context.Context) ([]model.Grade, error)
+	FetchSchool(ctx context.Context, dzongkhagId uuid.UUID) ([]model.School, error)
+	FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]model.Eccd, error)
 }

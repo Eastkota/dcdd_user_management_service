@@ -363,3 +363,108 @@ func (repo *UserRepository) BulkRegistration(signupInputs []model.SignupInput) (
     return err
 }
 
+func (repo *UserRepository) GetSchool(ctx context.Context, id uuid.UUID) (*model.School, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var school model.School
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&school).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch school: %v", err)
+	}
+	return &school, nil
+}
+
+
+func (repo *UserRepository) GetEccd(ctx context.Context, id uuid.UUID) (*model.Eccd, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var eccd model.Eccd
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&eccd).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch eccd: %v", err)
+	}
+	return &eccd, nil
+}
+
+func (repo *UserRepository) GetGrade(ctx context.Context, id uuid.UUID) (*model.Grade, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var grade model.Grade
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&grade).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch grade: %v", err)
+	}
+	return &grade, nil
+}
+
+func (repo *UserRepository) GetDzongkhag(ctx context.Context, id uuid.UUID) (*model.Dzongkhag, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var dzongkhag model.Dzongkhag
+	if err := db.WithContext(ctx).Where("id = ?", id).First(&dzongkhag).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch dzongkhag: %v", err)
+	}
+	return &dzongkhag, nil
+}
+
+func (repo *UserRepository) FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var dzongkhags []model.Dzongkhag
+	if err := db.WithContext(ctx).Find(&dzongkhags).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch dzongkhags: %v", err)
+	}
+	return dzongkhags, nil
+}
+
+func (repo *UserRepository) FetchGrade(ctx context.Context) ([]model.Grade, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var grades []model.Grade
+	if err := db.WithContext(ctx).Find(&grades).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch grades: %v", err)
+	}
+	return grades, nil
+}
+
+func (repo *UserRepository) FetchSchool(ctx context.Context, dzongkhagId uuid.UUID) ([]model.School, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+	var schools []model.School
+	if err := db.WithContext(ctx).Where("dzongkhag_id = ? ", dzongkhagId).Find(&schools).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch schools: %v", err)
+	}
+	return schools, nil
+}
+
+
+func (repo *UserRepository) FetchEccd(ctx context.Context, DzonghkhagId uuid.UUID) ([]model.Eccd, error) {
+	db, err := helpers.GetGormDB()
+    if err != nil {
+        return nil, err
+    }
+
+	var eccds []model.Eccd
+	if err := db.WithContext(ctx).Where("dzongkhag_id = ? ", DzonghkhagId).Find(&eccds).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch eccds: %v", err)
+	}
+	return eccds, nil
+}
+
