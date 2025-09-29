@@ -14,6 +14,7 @@ type Repository interface {
 	CreateDcddUser(signUpInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateDcddUserProfile(tx *gorm.DB, inputData model.UserProfileInput) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
+	UpdateDcddUserPassword(userID uuid.UUID, ResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	FetchAllDcddUsers() ([]model.DcddUserAndProfile, error)
 	GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error)
 	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error)

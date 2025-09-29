@@ -94,18 +94,13 @@ var ResetPasswordInput = graphql.NewInputObject(
 	graphql.InputObjectConfig{
 		Name: "ResetPasswordInput",
 		Fields: graphql.InputObjectConfigFieldMap{
-			"user_id": &graphql.InputObjectFieldConfig{
-				Type: graphql.NewNonNull(scalar.UUID),
-			},
 			"password": &graphql.InputObjectFieldConfig{
-				Type: graphql.NewNonNull(graphql.String),
-			},
-			"confirm_password": &graphql.InputObjectFieldConfig{
 				Type: graphql.NewNonNull(graphql.String),
 			},
 		},
 	},
 )
+
 
 var UserProfileInput = graphql.NewInputObject(graphql.InputObjectConfig{
 	Name: "UserProfileInput",

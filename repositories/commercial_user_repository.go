@@ -347,6 +347,55 @@ func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.
     return &user, &userProfile, nil
 }
 
+func (repo *UserRepository) UpdateDcddUserPassword(userID uuid.UUID, ResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
+    var user model.DcddUser
+    var userProfile model.UserProfile
+
+    err := repo.DB.Transaction(func(tx *gorm.DB) error {
+        if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                return fmt.Errorf("user with ID %s not found: %w", userID, err)
+            }
+            return fmt.Errorf("failed to fetch user for update: %w", err)
+        }
+        updateData := map[string]interface{}{
+            "updated_at": time.Now(),
+        }
+
+        if ResetPasswordInput.Password != "" {
+            hashedPassword, err := helpers.EncryptPassword(ResetPasswordInput.Password)
+            if err != nil {
+                return fmt.Errorf("failed to hash password: %w", err)
+            }
+            updateData["password"] = hashedPassword
+        }
+        if err := tx.Model(&user).Updates(updateData).Error; err != nil {
+            return fmt.Errorf("failed to update user data: %w", err)
+        }
+
+        if err := tx.Where("user_id = ?", user.ID).First(&userProfile).Error; err != nil {
+            if errors.Is(err, gorm.ErrRecordNotFound) {
+                return fmt.Errorf("user profile not found for user ID %s: %w", user.ID, err)
+            }
+            return fmt.Errorf("failed to fetch user profile: %w", err)
+        }
+
+        profileUpdate := map[string]interface{}{}
+        if len(profileUpdate) > 0 {
+            if err := tx.Model(&userProfile).Updates(profileUpdate).Error; err != nil {
+                return fmt.Errorf("failed to update user profile: %w", err)
+            }
+        }
+        return nil
+    })
+
+    if err != nil {
+        return nil, nil, err
+    }
+
+    return &user, &userProfile, nil
+}
+
 func (repo *UserRepository) UpdateDcddUserStatus(ctx context.Context, userID uuid.UUID, status string) (*model.DcddUser, error) {
 	// Find the existing question by its ID
 	var user model.DcddUser

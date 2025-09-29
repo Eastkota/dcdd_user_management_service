@@ -15,6 +15,7 @@ type Services interface {
 	CreateDcddUser(signupData model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	CreateDcddUserProfile(inputData model.UserProfileInput, tx *gorm.DB) (*model.UserProfile, error)
 	UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
+	UpdateDcddUserPassword(userID uuid.UUID, ResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error)
 	GetAllDcddUsers() ([]model.DcddUserAndProfile, error)
 	GetAllActiveDcddUsers() ([]model.DcddUserAndProfile, error)
 	FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error)
