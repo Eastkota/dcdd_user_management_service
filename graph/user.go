@@ -2,6 +2,8 @@ package schema
 
 import (
 	"dcdd_user_management_service/graph/scalar"
+	"dcdd_user_management_service/model"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -37,7 +39,17 @@ var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
 		"profile_picture":            &graphql.Field{Type: graphql.String},
 		"gender":                     &graphql.Field{Type: graphql.String},
 		"cid":                     	  &graphql.Field{Type: graphql.String},
-		"dob":                        &graphql.Field{Type: scalar.Time},
+		"dob": &graphql.Field{
+			Type: scalar.Time,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				profile := p.Source.(*model.UserProfile)
+				fmt.Printf("Dob in resolver: %+v\n", profile.Dob)
+				if profile.Dob != nil {
+					return *profile.Dob, nil // return actual time
+				}
+				return nil, nil // return null if nil
+			},
+		},
 		"created_at":                 &graphql.Field{Type: scalar.Time},
 		"updated_at":                 &graphql.Field{Type: scalar.Time},
 	},

@@ -44,12 +44,11 @@ var UUID = graphql.NewScalar(graphql.ScalarConfig{
 
 var Time = graphql.NewScalar(graphql.ScalarConfig{
 	Name:        "Time",
-	Description: "The Time scalar type represents time values in RFC3339 format",
+	Description: "The Time scalar type represents time values in YYYY-MM-DD or RFC3339 format",
 
-	// Serialize outgoing time.Time to string
 	Serialize: func(value interface{}) interface{} {
 		if t, ok := value.(time.Time); ok {
-			return t.Format(time.RFC3339)
+			return t.Format("2006-01-02") // Only return date part
 		}
 		return nil
 	},
@@ -82,6 +81,7 @@ var Time = graphql.NewScalar(graphql.ScalarConfig{
 		return nil
 	},
 })
+
 
 var Upload = graphql.NewScalar(graphql.ScalarConfig{
     Name:        "Upload",

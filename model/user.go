@@ -39,7 +39,7 @@ type UserProfile struct {
 	SchoolId       uuid.UUID     `gorm:"type:uuid;default:null" json:"school_id,omitempty"`
 	GradeId        uuid.UUID     `gorm:"type:uuid;default:null" json:"grade_id,omitempty"`
 	EccdId         uuid.UUID     `gorm:"type:uuid;default:null" json:"eccd_id,omitempty"`
-	Dob            *time.Time    `gorm:"type:dob" json:"dob,omitempty"`
+	Dob            *time.Time    `gorm:"type:date" json:"dob,omitempty"`
 	DzongkhagId    uuid.UUID     `gorm:"type:uuid" json:"dzongkhag_id"`
 	CreatedAt      time.Time `gorm:"autoCreateTime" json:"created_at"`
 	Cid            string    `gorm:"type:varchar(50)" json:"cid,omitempty"`
