@@ -48,7 +48,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"updateDcddUserPassword": &graphql.Field{
-				Type: SingleUserResponse,
+				Type: DcddSingleUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"user_id": &graphql.ArgumentConfig{
 						Type: scalar.UUID,
