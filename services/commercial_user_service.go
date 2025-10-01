@@ -63,8 +63,8 @@ func (as *UserService) CreateDcddUserProfile(inputData model.UserProfileInput, t
 func (as *UserService) UpdateDcddUser(userID uuid.UUID, signupInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
 	return as.Repository.UpdateDcddUser(userID, signupInput)
 }
-func (as *UserService) UpdateDcddUserPassword(userID uuid.UUID, ResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
-	return as.Repository.UpdateDcddUserPassword(userID, ResetPasswordInput)
+func (as *UserService) UpdateDcddUserPassword(userID uuid.UUID, DcddResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
+	return as.Repository.UpdateDcddUserPassword(userID, DcddResetPasswordInput)
 }
 
 func (as *UserService) FetchProfileByDcddUserId(ctx context.Context, userID uuid.UUID) (*model.UserProfile, error) {

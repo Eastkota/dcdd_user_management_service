@@ -53,8 +53,8 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					"user_id": &graphql.ArgumentConfig{
 						Type: scalar.UUID,
 					},
-					"ResetPasswordInput": &graphql.ArgumentConfig{
-						Type: ResetPasswordInput,
+					"DcddResetPasswordInput": &graphql.ArgumentConfig{
+						Type: DcddResetPasswordInput,
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {

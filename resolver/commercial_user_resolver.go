@@ -241,13 +241,13 @@ func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.DcddGener
     }
 }
 func (ur *UserResolver) UpdateDcddUserPassword(p graphql.ResolveParams) *model.DcddGenericUserResponse {
-    var ResetPasswordInput model.SignupInput
+    var DcddResetPasswordInput model.SignupInput
     userID, ok := p.Args["user_id"].(uuid.UUID)
     if !ok {
         return helpers.FormatError(fmt.Errorf("user_id argument is not a valid UUID type"))
     }
 
-    inputData, ok := p.Args["ResetPasswordInput"].(map[string]interface{})
+    inputData, ok := p.Args["DcddResetPasswordInput"].(map[string]interface{})
     if !ok {
         return helpers.FormatError(fmt.Errorf("signup_input argument is not a valid map"))
     }
@@ -257,12 +257,12 @@ func (ur *UserResolver) UpdateDcddUserPassword(p graphql.ResolveParams) *model.D
         return helpers.FormatError(err)
     }
 
-    err = json.Unmarshal(jsonData, &ResetPasswordInput)
+    err = json.Unmarshal(jsonData, &DcddResetPasswordInput)
     if err != nil {
         return helpers.FormatError(err)
     }
 
-    user, profile, err := ur.Services.UpdateDcddUserPassword(userID, &ResetPasswordInput)
+    user, profile, err := ur.Services.UpdateDcddUserPassword(userID, &DcddResetPasswordInput)
     if err != nil {
         return helpers.FormatError(err)
     }

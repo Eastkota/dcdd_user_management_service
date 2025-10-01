@@ -90,9 +90,9 @@ var UpdateSingleAuthDataInput = graphql.NewInputObject(
 	},
 )
 
-var ResetPasswordInput = graphql.NewInputObject(
+var DcddResetPasswordInput = graphql.NewInputObject(
 	graphql.InputObjectConfig{
-		Name: "ResetPasswordInput",
+		Name: "DcddResetPasswordInput",
 		Fields: graphql.InputObjectConfigFieldMap{
 			"password": &graphql.InputObjectFieldConfig{
 				Type: graphql.NewNonNull(graphql.String),

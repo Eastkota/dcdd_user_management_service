@@ -347,7 +347,7 @@ func (repo *UserRepository) UpdateDcddUser(userID uuid.UUID, signupInput *model.
     return &user, &userProfile, nil
 }
 
-func (repo *UserRepository) UpdateDcddUserPassword(userID uuid.UUID, ResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
+func (repo *UserRepository) UpdateDcddUserPassword(userID uuid.UUID, DcddResetPasswordInput *model.SignupInput) (*model.DcddUser, *model.UserProfile, error) {
     var user model.DcddUser
     var userProfile model.UserProfile
 
@@ -362,8 +362,8 @@ func (repo *UserRepository) UpdateDcddUserPassword(userID uuid.UUID, ResetPasswo
             "updated_at": time.Now(),
         }
 
-        if ResetPasswordInput.Password != "" {
-            hashedPassword, err := helpers.EncryptPassword(ResetPasswordInput.Password)
+        if DcddResetPasswordInput.Password != "" {
+            hashedPassword, err := helpers.EncryptPassword(DcddResetPasswordInput.Password)
             if err != nil {
                 return fmt.Errorf("failed to hash password: %w", err)
             }
