@@ -28,3 +28,5 @@ func UserServiceApiUrl() string {
     return os.Getenv("DCDD_USER_SERVICE_API")
 }
 func MembershipApi() string  { return os.Getenv("MEMBERSHIP_API") }
+func AuthServiceApi() string  { return os.Getenv("AUTH_API") }
+

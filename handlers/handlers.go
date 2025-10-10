@@ -33,9 +33,9 @@ func Handler(ctx echo.Context) error {
 	} else {
 		variables = make(map[string]interface{})
 	}
+	reqCtx := context.WithValue(ctx.Request().Context(), "http_request", ctx.Request())
 
-	result := executeQuery(ctx.Request().Context(), query, variables)
-
+	result := executeQuery(reqCtx, query, variables)
 	if result == nil {
         // Handle the error appropriately, e.g., return a 500 status code.
         return ctx.JSON(http.StatusInternalServerError, map[string]string{
