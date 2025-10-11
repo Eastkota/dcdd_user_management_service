@@ -72,7 +72,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					"fromDate": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 					"toDate":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 				},
-				Resolve: resolver.FetchDcddUsersByDateRange,
+				Resolve:  AuthMiddleware(resolver.FetchDcddUsersByDateRange),
 			},
 
 
