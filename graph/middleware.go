@@ -20,7 +20,7 @@ func AuthMiddleware(next func(p graphql.ResolveParams) *model.DcddGenericUserRes
         if userInterface == nil {
             if req, ok := ctx.Value("http_request").(*http.Request); ok {
                 authHeader := req.Header.Get("Authorization")
-                u, err := helpers.DcddValidateToken(authHeader)
+                u, err := helpers.ValidateToken(authHeader)
                 if err != nil {
                     return helpers.FormatError(err)
                 }
