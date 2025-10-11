@@ -57,13 +57,13 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 			"fetchAllDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchAllUsers(p)
+					return AuthMiddleware(resolver.FetchAllUsers)(p)
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchAllActiveUsers(p)
+					return  AuthMiddleware(resolver.FetchAllActiveUsers)(p)
 				},
 			},
 			"FetchDcddUsersByDateRange": &graphql.Field{
