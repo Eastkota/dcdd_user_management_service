@@ -3,7 +3,6 @@ package schema
 import (
 	"dcdd_user_management_service/graph/scalar"
 	"dcdd_user_management_service/model"
-	"fmt"
 
 	"github.com/graphql-go/graphql"
 )
@@ -43,7 +42,6 @@ var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
 			Type: scalar.Time,
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				profile := p.Source.(*model.UserProfile)
-				fmt.Printf("Dob in resolver: %+v\n", profile.Dob)
 				if profile.Dob != nil {
 					return *profile.Dob, nil // return actual time
 				}

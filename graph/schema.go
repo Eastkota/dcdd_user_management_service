@@ -2,7 +2,6 @@ package schema
 
 import (
     "github.com/graphql-go/graphql"
-    "fmt"
 )
 
 var queryType *graphql.Object
@@ -18,7 +17,6 @@ func InitSchema(q *graphql.Object, m *graphql.Object) {
         Query:    queryType,
         Mutation: mutationType,
     })
-    fmt.Println(schema, err)
 }
 
 func GetSchema() (*graphql.Schema, error) {

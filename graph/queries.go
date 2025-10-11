@@ -57,13 +57,13 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 			"fetchAllDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return AuthMiddleware(resolver.FetchAllUsers)(p)
+					return AuthMiddleware(resolver.FetchAllUsers)(p), nil
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return  AuthMiddleware(resolver.FetchAllActiveUsers)(p)
+					return AuthMiddleware(resolver.FetchAllActiveUsers)(p), nil
 				},
 			},
 			"FetchDcddUsersByDateRange": &graphql.Field{
@@ -72,9 +72,11 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					"fromDate": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 					"toDate":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 				},
-				Resolve:  AuthMiddleware(resolver.FetchDcddUsersByDateRange),
+				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+					result := AuthMiddleware(resolver.FetchDcddUsersByDateRange)(p)
+					return result, nil
+				},
 			},
-
 
 			"fetchSchools": &graphql.Field{
 				Type: SchoolResponse,

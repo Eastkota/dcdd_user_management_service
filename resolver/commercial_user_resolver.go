@@ -141,67 +141,52 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 	}
 }
 
-func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) (interface{}, error) {
+func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams)  *model.DcddGenericUserResponse {
 	users, err := ur.Services.GetAllDcddUsers()
     if err != nil {
-        return map[string]interface{}{
-            "data":  nil,
-            "error": err.Error(),
-        }, nil
+        return helpers.FormatError(err)
     }
-
-    return map[string]interface{}{
-        "data":  users,
-        "error": nil,
-    }, nil
+    return &model.DcddGenericUserResponse{
+		Data:  users,
+		Error: nil,
+	}
 }
 
-func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams)(interface{}, error) {
+func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     users, err := ur.Services.GetAllActiveDcddUsers()
     if err != nil {
-        return map[string]interface{}{
-            "data":  nil,
-            "error": err.Error(),
-        }, nil
+       return helpers.FormatError(err)
     }
 
-    return map[string]interface{}{
-        "data":  users,
-        "error": nil,
-    }, nil
+    return &model.DcddGenericUserResponse{
+		Data:  users,
+		Error: nil,
+	}
+
 }
 
-func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams) (interface{}, error) {
+func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     fromDateStr, _ := p.Args["fromDate"].(string)
     toDateStr, _ := p.Args["toDate"].(string)
 
     fromDate, err := time.Parse("2006-01-02", fromDateStr)
     if err != nil {
-        return map[string]interface{}{
-            "data":  nil,
-            "error": err.Error(),
-        }, nil
+         return helpers.FormatError(err)
     }
     toDate, err := time.Parse("2006-01-02", toDateStr)
     if err != nil {
-        return map[string]interface{}{
-            "data":  nil,
-            "error": err.Error(),
-        }, nil
+        return helpers.FormatError(err)
     }
 
     users, err := ur.Services.FetchDcddUsersByDateRange(fromDate, toDate)
     if err != nil {
-        return map[string]interface{}{
-            "data":  nil,
-            "error": err.Error(),
-        }, nil
+        return helpers.FormatError(err)
     }
 
-    return map[string]interface{}{
-        "data":  users,
-        "error": nil,
-    }, nil
+   return &model.DcddGenericUserResponse{
+		Data:  users,
+		Error: nil,
+	}
 }
 
 

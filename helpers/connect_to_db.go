@@ -54,7 +54,6 @@ func ConnectToGorm() error {
             config.PostgresDB(),
             config.PostgresPort(),
         )
-		fmt.Println("Connecting to Gorm with DSN:", dsn)
         db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
         if err != nil {
             return err

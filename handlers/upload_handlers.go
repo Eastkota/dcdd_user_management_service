@@ -17,7 +17,6 @@ func UploadCSVFile(c echo.Context) error {
 	if err != nil {
 		return c.JSON(400, map[string]string{"error": fmt.Sprintf("failed to get file from form: %v", err)})
 	}
-	fmt.Printf("Received file: %+v\n", file)
 
 	// 2. Open the file
 	src, err := file.Open()
