@@ -10,3 +10,4 @@ func FormatError(err error) *model.DcddGenericUserResponse {
 		},
 	}
 }
+

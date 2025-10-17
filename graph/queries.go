@@ -57,13 +57,13 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 			"fetchAllDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return AuthMiddleware(resolver.FetchAllUsers)(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchAllUsers))(p), nil
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return AuthMiddleware(resolver.FetchAllActiveUsers)(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchAllActiveUsers))(p), nil
 				},
 			},
 			"FetchDcddUsersByDateRange": &graphql.Field{
@@ -73,7 +73,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					"toDate":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					result := AuthMiddleware(resolver.FetchDcddUsersByDateRange)(p)
+					result := AuthMiddleware(PermissionMiddleware("list",resolver.FetchDcddUsersByDateRange))(p)
 					return result, nil
 				},
 			},
@@ -86,7 +86,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchSchool(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchSchool))(p), nil
 				},
 			},
 			"fetchEccd": &graphql.Field{
@@ -97,19 +97,19 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchEccd(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchEccd))(p), nil
 				},
 			},
 			"fetchDzongkhag": &graphql.Field{
 				Type: DzongkhagResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchDzongkhag(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchDzongkhag))(p), nil
 				},
 			},
 			"fetchGrade": &graphql.Field{
 				Type: GradeResponse,
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.FetchGrade(p), nil
+					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchGrade))(p), nil
 				},
 			},
 		},

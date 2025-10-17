@@ -16,7 +16,7 @@ func AuthMiddleware(next func(p graphql.ResolveParams) *model.DcddGenericUserRes
         ctx := p.Context
         userInterface := ctx.Value("user")
 
-        var user *model.DcddUser
+        var user *model.User
         if userInterface == nil {
             if req, ok := ctx.Value("http_request").(*http.Request); ok {
                 authHeader := req.Header.Get("Authorization")
@@ -35,12 +35,51 @@ func AuthMiddleware(next func(p graphql.ResolveParams) *model.DcddGenericUserRes
                 return helpers.FormatError(fmt.Errorf("invalid_token"))
             }
         } else {
-            user, _ = userInterface.(*model.DcddUser)
+            user, _ = userInterface.(*model.User)
         }
 
         if user == nil {
             return helpers.FormatError(fmt.Errorf("invalid_token"))
         }
+        return next(p)
+    }
+}
+func PermissionMiddleware(actionName string, next func(p graphql.ResolveParams) *model.DcddGenericUserResponse) func(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+    return func(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+        ctx := p.Context
+        user := ctx.Value("user") // User data should be decoded from JWT and put here
+        if user == nil {
+            return helpers.FormatError(fmt.Errorf("UnAuthorized"))
+        }
+
+        userData := user.(*model.User)
+        hasPermission := false
+
+        for _, role := range userData.Roles {
+            if role.Name == "super admin" {
+                hasPermission = true
+                break
+            }
+        }
+
+        if !hasPermission {
+            for _, role := range userData.Roles {
+                for _, permission := range role.Permissions {
+                    if permission.Action.Action == actionName {
+                        hasPermission = true
+                        break 
+                    }
+                }
+                if hasPermission {
+                    break
+                }
+            }
+        }
+
+        if !hasPermission {
+            return helpers.FormatError(fmt.Errorf("UnAuthorized"))
+        }
+
         return next(p)
     }
 }

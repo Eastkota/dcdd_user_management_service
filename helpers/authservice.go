@@ -10,7 +10,7 @@ import (
 	"github.com/machinebox/graphql"
 )
 
-func ValidateToken(tokenStr string) (*model.DcddUser, error) {
+func ValidateToken(tokenStr string) (*model.User, error) {
 	authServiceClient := graphql.NewClient(config.AuthServiceApi())
 	req := graphql.NewRequest(`
 		query ValidateToken($input:  String){
@@ -21,9 +21,44 @@ func ValidateToken(tokenStr string) (*model.DcddUser, error) {
 						email
 						id
 						mobile_no
+						name
 						status
 						updated_at
 						user_identifier
+						roles {
+							description
+							id
+							name
+							permissions {
+								created_at
+								id
+								role_id
+								updated_at
+								action {
+									action
+									created_at
+									id
+									name
+									updated_at
+									resource {
+										created_at
+										display
+										id
+										menu
+										name
+										updated_at
+										module {
+											created_at
+											display
+											id
+											menu
+											name
+											updated_at
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 				error {
@@ -40,7 +75,7 @@ func ValidateToken(tokenStr string) (*model.DcddUser, error) {
 	var response struct {
 		ValidateToken struct {
 			Data struct {
-				User model.DcddUser `json:"user"`
+				User model.User `json:"user"`
 			} `json:"data"`
 			Error struct {
 				Code    string `json:"code"`

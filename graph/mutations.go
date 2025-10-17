@@ -19,20 +19,9 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.CreateDcddUser(p), nil
+					return AuthMiddleware(PermissionMiddleware("create",resolver.CreateDcddUser))(p), nil
 				},
 			},
-			// "CreateDcddUserProfile": &graphql.Field{
-			// 	Type: UserProfileResponse,
-			// 	Args: graphql.FieldConfigArgument{
-			// 		"input": &graphql.ArgumentConfig{
-			// 			Type: UserProfileInput,
-			// 		},
-			// 	},
-			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-			// 		return resolver.CreateDcddUserProfile(p), nil
-			// 	},
-			// },
 			"updateDcddUser": &graphql.Field{
 				Type: DcddCreateUserResponse,
 				Args: graphql.FieldConfigArgument{
@@ -44,7 +33,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.UpdateDcddUser(p), nil
+					return AuthMiddleware(PermissionMiddleware("update",resolver.UpdateDcddUser))(p), nil
 				},
 			},
 			"updateDcddUserPassword": &graphql.Field{
@@ -58,7 +47,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.UpdateDcddUserPassword(p), nil
+					return AuthMiddleware(PermissionMiddleware("update",resolver.UpdateDcddUserPassword))(p), nil
 				},
 			},
 			"UpdateDcddUserStatus" : &graphql.Field{
@@ -72,7 +61,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.UpdateDcddUserStatus(p), nil
+					return AuthMiddleware(PermissionMiddleware("update",resolver.UpdateDcddUserStatus))(p), nil
 				},
 			},
 			"bulkRegistration": &graphql.Field{
@@ -83,7 +72,7 @@ func NewMutationType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return resolver.BulkRegistration(p), nil
+					return AuthMiddleware(PermissionMiddleware("create",resolver.BulkRegistration))(p), nil
 				},
 			},
 		},
