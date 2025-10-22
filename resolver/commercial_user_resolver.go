@@ -88,33 +88,24 @@ func (ur *UserResolver) CreateDcddUserProfile(p graphql.ResolveParams) *model.Dc
     if err != nil {
         return helpers.FormatError(err)
     }
-
-    // Get the database connection from the context or a global variable.
-    // Assuming 'ur.DB' holds the GORM database instance.
     db, err := helpers.GetGormDB()
-
-    // Start a new transaction.
     tx := db.Begin()
     if tx.Error != nil {
         return helpers.FormatError(tx.Error)
     }
 
-    // Defer a rollback in case of an error.
-    // If the function returns successfully, the commit will prevent this.
     defer func() {
         if r := recover(); r != nil {
             tx.Rollback()
         }
     }()
 
-    // Pass the transaction 'tx' to the service layer.
     result, err := ur.Services.CreateDcddUserProfile(userProfileInput, tx)
     if err != nil {
         tx.Rollback() // Roll back the transaction on error.
         return helpers.FormatError(err)
     }
 
-    // Commit the transaction if everything was successful.
     if err := tx.Commit().Error; err != nil {
         return helpers.FormatError(err)
     }
@@ -141,27 +132,78 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 	}
 }
 
-func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams)  *model.DcddGenericUserResponse {
-	users, err := ur.Services.GetAllDcddUsers()
+func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+    input := model.FetchDcddUsersInput{}
+    
+    if input.Limit == 0 {
+        input.Limit = 50 
+    }
+    users, totalCount, err := ur.Services.GetAllDcddUsers(input.Limit, input.Offset) 
     if err != nil {
         return helpers.FormatError(err)
     }
+
+    if len(users) == 0 {
+        return &model.DcddGenericUserResponse{
+            Data: nil,
+            Error: &model.UserError{
+                Message: "user not found",
+                Code:    "404",
+            },
+        }
+    }
+
+    totalPages := (totalCount + input.Limit - 1) / input.Limit
+    
     return &model.DcddGenericUserResponse{
-		Data:  users,
-		Error: nil,
-	}
+        Data: &model.FetchAllDcddUsersResult{
+            Users: users,
+            Pagination: &model.DcddUserPagination{
+                CurrentPage: (input.Offset / input.Limit) + 1,
+                TotalPage:   totalPages,
+                Limit:       input.Limit,
+            },
+        },
+        Error: nil,
+    }
 }
 
 func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams) *model.DcddGenericUserResponse {
-    users, err := ur.Services.GetAllActiveDcddUsers()
+    limit, ok := p.Args["limit"].(int)
+    if !ok {
+        limit = 50
+    }
+
+    offset, ok := p.Args["offset"].(int)
+    if !ok {
+        offset = 0
+    }
+
+    users, totalCount, err := ur.Services.GetAllActiveDcddUsers(limit, offset)
     if err != nil {
        return helpers.FormatError(err)
     }
-
+    if len(users) == 0 {
+        return &model.DcddGenericUserResponse{
+            Data: nil,
+            Error: &model.UserError{
+                Message: "user not found",
+                Code:    "404", 
+            },
+        }
+    }
+    totalPages := (totalCount + limit - 1) / limit
     return &model.DcddGenericUserResponse{
-		Data:  users,
-		Error: nil,
-	}
+        Data: &model.FetchAllDcddActiveUsersResult{
+            Users: users,
+            Pagination: &model.DcddUserPagination{
+                CurrentPage: (offset / limit) + 1,
+                TotalPage:   totalPages,
+                Limit:       limit,
+            },
+        },
+        Error: nil,
+    }
 
 }
 

@@ -30,3 +30,8 @@ type DcddGenericUserResponse struct {
 type DcddUserProfileResult struct {
 	UserProfile *UserProfile `json:"user_profile"`
 }
+
+type FetchAllDcddActiveUsersResult struct{
+    Users       []DcddUserAndProfile             `json:"users"`
+    Pagination *DcddUserPagination   `json:"pagination"`
+}

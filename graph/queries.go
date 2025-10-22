@@ -56,12 +56,28 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 			},
 			"fetchAllDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
+				Args: graphql.FieldConfigArgument{
+					"limit": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"offset": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchAllUsers))(p), nil
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
 				Type: DcddUsersByDateRangeResponse,
+				Args: graphql.FieldConfigArgument{
+					"limit": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+					"offset": &graphql.ArgumentConfig{
+						Type: graphql.Int,
+					},
+				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchAllActiveUsers))(p), nil
 				},

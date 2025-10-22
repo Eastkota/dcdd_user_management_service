@@ -105,4 +105,15 @@ func (Dzongkhag) TableName() string {
 	return "dcdd_user_data.dzongkhags"
 }
 
+type DcddUserPagination struct {
+	CurrentPage int `json:"current_page"`
+	TotalPage   int `json:"total_page"`
+	Limit       int `json:"limit"`
+}
+
+type FetchAllDcddUsersResult struct {
+    Users     []DcddUserAndProfile `json:"user"`
+    Pagination *DcddUserPagination   `json:"pagination"`
+}
+
 
