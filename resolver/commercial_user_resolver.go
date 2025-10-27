@@ -133,23 +133,42 @@ func (ur *UserResolver) FetchProfileByDcddUserId(p graphql.ResolveParams) *model
 }
 
 func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) *model.DcddGenericUserResponse {
-    input := model.FetchDcddUsersInput{}
-    
-    if input.Limit == 0 {
-        input.Limit = 50 
+    var input model.FetchDcddUsersInput
+    if l, ok := p.Args["limit"].(int); ok && l > 0 {
+        input.Limit = l
+    } else {
+        input.Limit = 10
     }
-    users, totalCount, err := ur.Services.GetAllDcddUsers(input.Limit, input.Offset) 
+    if o, ok := p.Args["offset"].(int); ok && o >= 0 {
+        input.Offset = o
+    } else {
+        input.Offset = 0
+    }
+
+    users, totalCount, err := ur.Services.GetAllDcddUsers(input.Limit, input.Offset)
     if err != nil {
         return helpers.FormatError(err)
     }
 
-    totalPages := (totalCount + input.Limit - 1) / input.Limit
-    
+    if input.Limit <= 0 {
+        input.Limit = 10
+    }
+
+    totalPages := 0
+    if totalCount > 0 {
+        totalPages = (totalCount + input.Limit - 1) / input.Limit
+    }
+
+    currentPage := 1
+    if input.Offset > 0 {
+        currentPage = (input.Offset / input.Limit) + 1
+    }
+
     return &model.DcddGenericUserResponse{
         Data: &model.FetchAllDcddUsersResult{
             Users: users,
             Pagination: &model.DcddUserPagination{
-                CurrentPage: (input.Offset / input.Limit) + 1,
+                CurrentPage: currentPage,
                 TotalPage:   totalPages,
                 Limit:       input.Limit,
             },
@@ -159,15 +178,9 @@ func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) *model.DcddGeneri
 }
 
 func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams) *model.DcddGenericUserResponse {
-    limit, ok := p.Args["limit"].(int)
-    if !ok {
-        limit = 50
-    }
+    limit:= p.Args["limit"].(int)
 
-    offset, ok := p.Args["offset"].(int)
-    if !ok {
-        offset = 0
-    }
+    offset:= p.Args["offset"].(int)
 
     users, totalCount, err := ur.Services.GetAllActiveDcddUsers(limit, offset)
     if err != nil {
