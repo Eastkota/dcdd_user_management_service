@@ -184,70 +184,33 @@ func (repo *UserRepository) FetchProfileByDcddUserId(ctx context.Context, userId
     }
     return &profile, nil
 }
-func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUserAndProfile, int, error) {
+func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUser, int, error) {
     var total int64
+    var users []model.DcddUser
     if err := repo.DB.Model(&model.DcddUser{}).Count(&total).Error; err != nil {
         return nil, 0, fmt.Errorf("failed to count users: %w", err)
     }
 
-    var users []model.DcddUser
-    if err := repo.DB.Limit(limit).Offset(offset).Find(&users).Error; err != nil {
-        return nil, 0, fmt.Errorf("failed to fetch users: %w", err)
+    db := repo.DB.Limit(limit).Offset(offset)
+    if err := db.Find(&users).Error; err != nil {
+        return nil, 0, fmt.Errorf("failed to fetch users: %v", err) 
     }
 
-    if len(users) == 0 {
-        return []model.DcddUserAndProfile{}, int(total), nil
-    }
-
-    userIDs := make([]uuid.UUID, 0, len(users))
-    for _, u := range users {
-        userIDs = append(userIDs, u.ID)
-    }
-
-    var profiles []model.UserProfile
-    if err := repo.DB.Where("user_id IN ?", userIDs).Find(&profiles).Error; err != nil {
-        return nil, 0, fmt.Errorf("failed to fetch user profiles: %w", err)
-    }
-
-    profileMap := make(map[uuid.UUID]*model.UserProfile)
-    for i := range profiles {
-        p := profiles[i]
-        profileMap[p.UserId] = &p
-    }
-
-    results := make([]model.DcddUserAndProfile, 0, len(users))
-    for i := range users {
-        u := users[i]
-        results = append(results, model.DcddUserAndProfile{
-            User:        &u,
-            UserProfile: profileMap[u.ID],
-        })
-    }
-
-    return results, int(total), nil
+    return users, int(total), nil
 }
 
-func (repo *UserRepository) GetAllActiveDcddUsers(limit, offset int) ([]model.DcddUserAndProfile, int, error){
+func (repo *UserRepository) GetAllActiveDcddUsers(limit, offset int) ([]model.DcddUser, int, error){
     var users []model.DcddUser
 	if err := repo.DB.Where("status = ?", "Active").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
 		return nil, 0,fmt.Errorf("failed to fetch users: %w", err)
 	}
-    // fmt.Println("Fetched users:", users) // <-- add this
-	results := make([]model.DcddUserAndProfile, 0, len(users))
 
-	for _, user := range users {
-		var profile model.UserProfile
-		err := repo.DB.Where("user_id = ?", user.ID).First(&profile).Error
-		if err != nil && err != gorm.ErrRecordNotFound {
-			return nil, 0,fmt.Errorf("failed to fetch profile for user %d: %w", user.ID, err)
-		}
-		results = append(results, model.DcddUserAndProfile{
-			User:    &user,
-			UserProfile: &profile,
-		})
-	}
+	var totalCount int64
+    if err := repo.DB.Model(&model.DcddUser{}).Where("status = ?", "Active").Count(&totalCount).Error; err != nil {
+        return nil, 0, fmt.Errorf("failed to count active users: %v", err)
+    }
 
-	return results, 0,nil
+	return users, int(totalCount), nil
 }
 
 func (repo *UserRepository) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error) {

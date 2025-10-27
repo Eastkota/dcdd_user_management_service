@@ -192,3 +192,15 @@ var DzongkhagResult = graphql.NewObject(graphql.ObjectConfig{
 		"dzongkhags": &graphql.Field{Type: graphql.NewList(Dzongkhag)},
 	},
 })
+
+var FetchAllDcddUsersResult = graphql.NewObject(
+    graphql.ObjectConfig{
+        Name: "FetchAllDcddUsersResult",
+        Fields: graphql.Fields{
+            "users": &graphql.Field{
+                Type: graphql.NewList(DcddUser),
+            },
+        },
+    },
+)
+

@@ -143,16 +143,6 @@ func (ur *UserResolver) FetchAllUsers(p graphql.ResolveParams) *model.DcddGeneri
         return helpers.FormatError(err)
     }
 
-    if len(users) == 0 {
-        return &model.DcddGenericUserResponse{
-            Data: nil,
-            Error: &model.UserError{
-                Message: "user not found",
-                Code:    "404",
-            },
-        }
-    }
-
     totalPages := (totalCount + input.Limit - 1) / input.Limit
     
     return &model.DcddGenericUserResponse{
@@ -183,18 +173,10 @@ func (ur *UserResolver) FetchAllActiveUsers(p graphql.ResolveParams) *model.Dcdd
     if err != nil {
        return helpers.FormatError(err)
     }
-    if len(users) == 0 {
-        return &model.DcddGenericUserResponse{
-            Data: nil,
-            Error: &model.UserError{
-                Message: "user not found",
-                Code:    "404", 
-            },
-        }
-    }
+
     totalPages := (totalCount + limit - 1) / limit
     return &model.DcddGenericUserResponse{
-        Data: &model.FetchAllDcddActiveUsersResult{
+        Data: &model.FetchAllDcddUsersResult{
             Users: users,
             Pagination: &model.DcddUserPagination{
                 CurrentPage: (offset / limit) + 1,

@@ -112,7 +112,7 @@ type DcddUserPagination struct {
 }
 
 type FetchAllDcddUsersResult struct {
-    Users     []DcddUserAndProfile `json:"user"`
+    Users     []DcddUser `json:"user"`
     Pagination *DcddUserPagination   `json:"pagination"`
 }
 

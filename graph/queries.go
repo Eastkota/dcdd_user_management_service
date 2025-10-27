@@ -55,7 +55,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"fetchAllDcddUsers": &graphql.Field{
-				Type: DcddUsersByDateRangeResponse,
+				Type: DcddUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"limit": &graphql.ArgumentConfig{
 						Type: graphql.Int,
@@ -69,7 +69,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 				},
 			},
 			"fetchAllActiveDcddUsers": &graphql.Field{
-				Type: DcddUsersByDateRangeResponse,
+				Type: DcddUserResponse,
 				Args: graphql.FieldConfigArgument{
 					"limit": &graphql.ArgumentConfig{
 						Type: graphql.Int,

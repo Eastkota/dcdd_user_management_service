@@ -14,7 +14,7 @@ var GenericAuthResponse = graphql.NewObject(graphql.ObjectConfig{
 var DcddUserResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserResponse",
 	Fields: graphql.Fields{
-		"data": &graphql.Field{Type: graphql.NewList(DcddUser)},
+		"data": &graphql.Field{Type: FetchAllDcddUsersResult},
 		"error": &graphql.Field{Type: DcddUserError},
 	},
 })
