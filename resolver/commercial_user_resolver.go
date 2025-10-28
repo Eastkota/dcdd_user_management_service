@@ -226,6 +226,40 @@ func (ur *UserResolver) FetchDcddUsersByDateRange(p graphql.ResolveParams) *mode
 	}
 }
 
+func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+    var fromDate *time.Time
+    if val, ok := p.Args["from_date"]; ok && val != nil {
+        if t, ok := val.(time.Time); ok {
+            fromDate = &t
+        } else {
+            return helpers.FormatError(fmt.Errorf("from_date argument is not a valid time.Time type"))
+        }
+    }
+    
+    var toDate *time.Time
+    if val, ok := p.Args["to_date"]; ok && val != nil {
+        if t, ok := val.(time.Time); ok {
+            toDate = &t
+        } else {
+            return helpers.FormatError(fmt.Errorf("to_date argument is not a valid time.Time type"))
+        }
+    }
+
+    totalAll, totalActive, totalNew, err := ar.Services.GetDcddUserTotals(fromDate, toDate)
+    if err != nil {
+        return helpers.FormatError(err)
+    }
+
+    return &model.DcddGenericUserResponse{
+        Data: map[string]interface{}{
+            "total_all":    totalAll,
+            "total_active": totalActive,
+            "total_new":    totalNew,
+        },
+        Error: nil,
+    }
+}
+
 
 func (ur *UserResolver) UpdateDcddUser(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     var signupInput model.SignupInput

@@ -85,6 +85,11 @@ func (as *UserService) GetAllActiveDcddUsers(limit, offset int) ([]model.DcddUse
 func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]model.DcddUserAndProfile, error) {
     return as.Repository.FetchDcddUsersByDateRange(fromDate, toDate)
 }
+
+func (vs *UserService) GetDcddUserTotals(fromDate, toDate *time.Time) (totalAll int, totalActive int, totalNew int, err error) {
+	return vs.Repository.GetDcddUserTotals(fromDate, toDate)
+}
+
 func (as *UserService) FetchDzongkhag(ctx context.Context) ([]model.Dzongkhag, error) {
 	return as.Repository.FetchDzongkhag(ctx)
 }

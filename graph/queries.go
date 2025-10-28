@@ -93,6 +93,20 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return result, nil
 				},
 			},
+			"getDcddUserTotals": &graphql.Field{
+                Type: DcddUserTotalsResponse,
+                Args: graphql.FieldConfigArgument{
+                    "from_date": &graphql.ArgumentConfig{
+                        Type: scalar.Time,
+                    },
+                    "to_date": &graphql.ArgumentConfig{
+                        Type: scalar.Time,
+                    },
+                },
+                Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+                    return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
+                },
+            },
 
 			"fetchSchools": &graphql.Field{
 				Type: SchoolResponse,

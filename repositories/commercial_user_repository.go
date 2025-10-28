@@ -563,3 +563,22 @@ func (repo *UserRepository) FetchEccd(ctx context.Context, DzonghkhagId uuid.UUI
 	return eccds, nil
 }
 
+func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time) (totalAll int, totalActive int, totalNew int, err error) {
+    var totalAllCount int64
+    var totalActiveCount int64
+    var totalNewCount int64
+
+    if err := repo.DB.Model(&model.DcddUser{}).Count(&totalAllCount).Error; err != nil {
+        return 0, 0, 0, fmt.Errorf("failed to count total users: %w", err)
+    }
+
+    if err := repo.DB.Model(&model.DcddUser{}).Where("status = ?", "Active").Count(&totalActiveCount).Error; err != nil {
+        return 0, 0, 0, fmt.Errorf("failed to count active users: %w", err)
+    }
+
+    if err := repo.DB.Model(&model.DcddUser{}).Where("created_at BETWEEN ? AND ?", fromDate, toDate).Count(&totalNewCount).Error; err != nil {
+        return 0, 0, 0, fmt.Errorf("failed to count new registrations: %w", err)
+    }
+
+    return int(totalAllCount), int(totalActiveCount), int(totalNewCount), nil
+}
