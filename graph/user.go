@@ -22,6 +22,8 @@ var DcddUser = graphql.NewObject(graphql.ObjectConfig{
 		"category":        &graphql.Field{Type: graphql.String},
 		"created_at":      &graphql.Field{Type: scalar.Time},
 		"updated_at":      &graphql.Field{Type: scalar.Time},
+
+		"user_profile":	   &graphql.Field{Type: DcddUserProfile},
 	},
 })
 
@@ -43,9 +45,9 @@ var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
 			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 				profile := p.Source.(*model.UserProfile)
 				if profile.Dob != nil {
-					return *profile.Dob, nil // return actual time
+					return *profile.Dob, nil
 				}
-				return nil, nil // return null if nil
+				return nil, nil
 			},
 		},
 		"created_at":                 &graphql.Field{Type: scalar.Time},

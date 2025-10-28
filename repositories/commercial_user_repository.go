@@ -191,7 +191,7 @@ func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUs
         return nil, 0, fmt.Errorf("failed to count users: %w", err)
     }
 
-    db := repo.DB.Limit(limit).Offset(offset)
+    db := repo.DB.Preload("UserProfile").Limit(limit).Offset(offset)
     if err := db.Find(&users).Error; err != nil {
         return nil, 0, fmt.Errorf("failed to fetch users: %v", err) 
     }
@@ -201,7 +201,7 @@ func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUs
 
 func (repo *UserRepository) GetAllActiveDcddUsers(limit, offset int) ([]model.DcddUser, int, error){
     var users []model.DcddUser
-	if err := repo.DB.Where("status = ?", "Active").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+	if err := repo.DB.Where("status = ?", "Active").Preload("UserProfile").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
 		return nil, 0,fmt.Errorf("failed to fetch users: %w", err)
 	}
 

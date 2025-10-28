@@ -22,8 +22,10 @@ type DcddUser struct {
     Category  	   string    `gorm:"not null" json:"category"`
     StudentId 	   string    `gorm:"type:varchar(50);unique" json:"student_id"`
     LoginId        string    `gorm:"type:varchar(20);unique;not null" json:"login_id"`
-    CreatedAt      time.Time `grom:"type:timestamptz" json:"created_at"`
-    UpdatedAt      time.Time `grom:"type:timestamptz" json:"updated_at"`
+	CreatedAt      time.Time `gorm:"type:timestamptz" json:"created_at"`
+	UpdatedAt      time.Time `gorm:"type:timestamptz" json:"updated_at"`
+
+	UserProfile	   *UserProfile `gorm:"foreignKey:UserId;references:ID" json:"user_profile"`
 }
 
 func (DcddUser) TableName() string {
@@ -49,6 +51,8 @@ type UserProfile struct {
 	Grade     *Grade     `gorm:"foreignKey:GradeId;references:ID" json:"grade,omitempty"`
 	Eccd      *Eccd      `gorm:"foreignKey:EccdId;references:ID" json:"eccd,omitempty"`
 	Dzongkhag *Dzongkhag `gorm:"foreignKey:DzongkhagId;references:ID" json:"dzongkhag"`
+
+	User *DcddUser `gorm:"foreignKey:UserId;references:ID" json:"user"`
 }
 
 func (UserProfile) TableName() string {
