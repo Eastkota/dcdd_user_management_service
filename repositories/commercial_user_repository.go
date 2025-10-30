@@ -191,7 +191,12 @@ func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUs
         return nil, 0, fmt.Errorf("failed to count users: %w", err)
     }
 
-    db := repo.DB.Preload("UserProfile").Limit(limit).Offset(offset)
+    db := repo.DB.Preload("UserProfile").
+    Preload("UserProfile.Dzongkhag").
+    Preload("UserProfile.School").
+    Preload("UserProfile.Eccd").
+    Preload("UserProfile.Grade").
+    Limit(limit).Offset(offset)
     if err := db.Find(&users).Error; err != nil {
         return nil, 0, fmt.Errorf("failed to fetch users: %v", err) 
     }
@@ -201,7 +206,13 @@ func (repo *UserRepository) FetchAllDcddUsers(limit, offset int) ([]model.DcddUs
 
 func (repo *UserRepository) GetAllActiveDcddUsers(limit, offset int) ([]model.DcddUser, int, error){
     var users []model.DcddUser
-	if err := repo.DB.Where("status = ?", "Active").Preload("UserProfile").Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+	if err := repo.DB.Where("status = ?", "Active").
+    Preload("UserProfile").
+    Preload("UserProfile.Dzongkhag").
+    Preload("UserProfile.School").
+    Preload("UserProfile.Eccd").
+    Preload("UserProfile.Grade").
+    Limit(limit).Offset(offset).Find(&users).Error; err != nil {
 		return nil, 0,fmt.Errorf("failed to fetch users: %w", err)
 	}
 
@@ -586,7 +597,6 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time) (tota
 func (repo *UserRepository) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
     var results []model.UserActivity
 
-    // Build query
     err := repo.DB.
         Model(&model.UserActivity{}).
         Select("user_id, COUNT(*) as count").

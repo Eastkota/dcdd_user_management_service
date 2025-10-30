@@ -52,6 +52,11 @@ var DcddUserProfile = graphql.NewObject(graphql.ObjectConfig{
 		},
 		"created_at":                 &graphql.Field{Type: scalar.Time},
 		"updated_at":                 &graphql.Field{Type: scalar.Time},
+		"school":                 &graphql.Field{Type: School},
+		"grade":                 &graphql.Field{Type: Grade},
+		"eccd":                 &graphql.Field{Type: Eccd},
+		"dzongkhag":                 &graphql.Field{Type: Dzongkhag},
+		
 	},
 })
 
