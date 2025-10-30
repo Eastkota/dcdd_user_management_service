@@ -104,6 +104,10 @@ func (as *UserService) FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]
 	return as.Repository.FetchEccd(ctx, dzongkhagId)
 }
 
+func (as *UserService) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
+	return as.Repository.GetUserActivity(offset, limit)
+}
+
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
     reader := csv.NewReader(csvData)
 

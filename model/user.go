@@ -120,4 +120,17 @@ type FetchAllDcddUsersResult struct {
     Pagination *DcddUserPagination   `json:"pagination"`
 }
 
+type UserActivity struct {
+    ID  uuid.UUID   `gorm:"type:uuid;primaryKey" json:"id"`
+    Activity string `gorm:"type:varchar" json:"activity"`
+    UserID  uuid.UUID `gorm:"type:uuid" json:"user_id"`
+    Count   int     `json:"count"`
+
+    User    *DcddUser   `gorm:"foreignKey:UserID;references:ID" json:"user"`
+}
+
+func (UserActivity) TableName() string {
+    return "dcdd_auth.dcdd_user_activities"
+}
+
 

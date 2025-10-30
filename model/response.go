@@ -35,3 +35,7 @@ type FetchAllDcddActiveUsersResult struct{
     Users       []DcddUserAndProfile             `json:"users"`
     Pagination *DcddUserPagination   `json:"pagination"`
 }
+
+type UserActivityResult struct{
+    UserActivities  []UserActivity `json:"user_activity"`    
+}

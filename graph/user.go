@@ -206,3 +206,17 @@ var FetchAllDcddUsersResult = graphql.NewObject(
     },
 )
 
+var DcddUserActivity = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserActivity",
+	Fields: graphql.Fields{
+		"id":                         &graphql.Field{Type: scalar.UUID},
+		"activity":                       &graphql.Field{Type: graphql.String},
+		"user_id":                         &graphql.Field{Type: scalar.UUID},
+		"count":                     &graphql.Field{Type: graphql.Int},
+		"created_at":                 &graphql.Field{Type: scalar.Time},
+		"updated_at":                 &graphql.Field{Type: scalar.Time},
+
+		"user":						&graphql.Field{Type: DcddUser},
+	},
+})
+

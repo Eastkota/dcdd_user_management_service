@@ -582,3 +582,24 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time) (tota
 
     return int(totalAllCount), int(totalActiveCount), int(totalNewCount), nil
 }
+
+func (repo *UserRepository) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
+    var results []model.UserActivity
+
+    // Build query
+    err := repo.DB.
+        Model(&model.UserActivity{}).
+        Select("user_id, COUNT(*) as count").
+        Group("user_id").
+        Offset(offset).
+        Limit(limit).
+        Preload("User").
+        Preload("User.UserProfile").
+        Find(&results).Error
+
+    if err != nil {
+        return nil, err
+    }
+
+    return results, nil
+}

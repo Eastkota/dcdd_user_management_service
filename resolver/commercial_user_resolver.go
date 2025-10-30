@@ -493,3 +493,23 @@ func (ur *UserResolver) FetchDzongkhag(p graphql.ResolveParams) *model.DcddGener
 	}
 }
 
+func (ur *UserResolver) GetUserActivity(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+    offset, _ := p.Args["offset"].(int)
+    limit, _ := p.Args["limit"].(int)
+    if limit == 0 {
+        limit = 20 
+    }
+
+    activities, err := ur.Services.GetUserActivity(offset, limit)
+    if err != nil {
+            return helpers.FormatError(fmt.Errorf("failed to fetch user activity: %v", err))
+        }
+
+    return &model.DcddGenericUserResponse{
+        Data: &model.UserActivityResult{
+            UserActivities: activities,
+        },
+        Error: nil,
+    }
+}
+
