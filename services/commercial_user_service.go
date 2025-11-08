@@ -86,7 +86,7 @@ func (as *UserService) FetchDcddUsersByDateRange(fromDate, toDate time.Time) ([]
     return as.Repository.FetchDcddUsersByDateRange(fromDate, toDate)
 }
 
-func (vs *UserService) GetDcddUserTotals(fromDate, toDate *time.Time) (totalAll int, totalActive int, totalNew int, err error) {
+func (vs *UserService) GetDcddUserTotals(fromDate, toDate *time.Time) (totalAll int, totalActive int, totalInActive, totalNew int, err error) {
 	return vs.Repository.GetDcddUserTotals(fromDate, toDate)
 }
 

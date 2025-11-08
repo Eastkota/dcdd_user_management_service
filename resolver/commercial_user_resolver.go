@@ -245,7 +245,7 @@ func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGe
         }
     }
 
-    totalAll, totalActive, totalNew, err := ar.Services.GetDcddUserTotals(fromDate, toDate)
+    totalAll, totalActive, totalNew,totalInActive, err := ar.Services.GetDcddUserTotals(fromDate, toDate)
     if err != nil {
         return helpers.FormatError(err)
     }
@@ -255,6 +255,7 @@ func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGe
             "total_all":    totalAll,
             "total_active": totalActive,
             "total_new":    totalNew,
+            "total_inactive":    totalInActive,
         },
         Error: nil,
     }

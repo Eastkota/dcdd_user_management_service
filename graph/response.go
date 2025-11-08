@@ -118,6 +118,7 @@ var DcddUserTotalsResponse = graphql.NewObject(graphql.ObjectConfig{
                     "total_all":    &graphql.Field{Type: graphql.Int},
                     "total_active": &graphql.Field{Type: graphql.Int},
                     "total_new":    &graphql.Field{Type: graphql.Int},
+                    "total_inactive":    &graphql.Field{Type: graphql.Int},
                 },
             }),
         },
