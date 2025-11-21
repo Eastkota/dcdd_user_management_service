@@ -22,8 +22,8 @@ type DcddUser struct {
     Category  	   string    `gorm:"not null" json:"category"`
     StudentId 	   string    `gorm:"type:varchar(50);unique" json:"student_id"`
     LoginId        string    `gorm:"type:varchar(20);unique;not null" json:"login_id"`
-    CreatedAt      time.Time `grom:"type:timestamptz" json:"created_at"`
-    UpdatedAt      time.Time `grom:"type:timestamptz" json:"updated_at"`
+	CreatedAt      time.Time `gorm:"type:timestamptz" json:"created_at"`
+	UpdatedAt      time.Time `gorm:"type:timestamptz" json:"updated_at"`
 
 	UserProfile	   *UserProfile `gorm:"foreignKey:UserId;references:ID" json:"user_profile"`
 }

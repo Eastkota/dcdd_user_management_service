@@ -245,7 +245,23 @@ func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGe
         }
     }
 
-    totalAll, totalActive, totalNew,totalInActive, err := ar.Services.GetDcddUserTotals(fromDate, toDate)
+    var dzongkhagPtr *uuid.UUID
+    if val, ok := p.Args["dzongkhag_id"]; ok && val != nil {
+        if id, ok := val.(uuid.UUID); ok && id != uuid.Nil {
+            dzongkhagPtr = &id
+        } else {
+            return helpers.FormatError(fmt.Errorf("dzongkhag_id argument is not a valid UUID type"))
+        }
+    }
+
+    var categoryPtr *string
+    if val, ok := p.Args["category"]; ok && val != nil {
+        if s, ok := val.(string); ok && s != "" {
+            categoryPtr = &s
+        }
+    }
+
+    totalAll, totalActive, totalNew,totalInActive, err := ar.Services.GetDcddUserTotals(fromDate, toDate, dzongkhagPtr, categoryPtr)
     if err != nil {
         return helpers.FormatError(err)
     }

@@ -102,9 +102,16 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
                     "to_date": &graphql.ArgumentConfig{
                         Type: scalar.Time,
                     },
+					"dzongkhag_id": &graphql.ArgumentConfig{
+						Type: scalar.UUID,
+					},
+					"category": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
                 },
                 Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-                    return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
+                    // return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
+                    return resolver.GetDcddUserTotals(p), nil
                 },
             },
 

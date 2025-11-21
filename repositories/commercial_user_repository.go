@@ -574,26 +574,61 @@ func (repo *UserRepository) FetchEccd(ctx context.Context, DzonghkhagId uuid.UUI
 	return eccds, nil
 }
 
-func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time) (totalAll int, totalActive int, totalInActive, totalNew int, err error) {
+func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzongkhag_id *uuid.UUID, category *string) (totalAll int, totalActive int, totalInActive, totalNew int, err error) {
     var totalAllCount int64
     var totalActiveCount int64
     var totalInActiveCount int64
     var totalNewCount int64
 
-    query := repo.DB.Model(&model.DcddUser{})
+    // Prepare base query for users
+    baseQuery := repo.DB.Model(&model.DcddUser{})
+
+    // Apply date filter if provided
+    var fromUTC, toUTC time.Time
+    var dateFilter bool
     if fromDate != nil && toDate != nil {
-        query = query.Where("created_at BETWEEN ? AND ?", fromDate, toDate)
+        fromUTC = fromDate.UTC()
+        toUTC = toDate.Add(23*time.Hour + 59*time.Minute + 59*time.Second).UTC()
+        dateFilter = true
     }
-    if err := query.Count(&totalAllCount).Error; err != nil {
+
+    // If dzongkhag or category filters are present, join profiles
+    needJoinProfile := dzongkhag_id != nil || category != nil
+    if needJoinProfile {
+        baseQuery = baseQuery.Joins("JOIN dcdd_user_data.dcdd_user_profiles up ON up.user_id = dcdd_auth.dcdd_users.id")
+        if dzongkhag_id != nil {
+            baseQuery = baseQuery.Where("up.dzongkhag_id = ?", *dzongkhag_id)
+        }
+        if category != nil {
+            baseQuery = baseQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
+        }
+    }
+
+    if dateFilter {
+        baseQuery = baseQuery.Where("dcdd_auth.dcdd_users.created_at BETWEEN ? AND ?", fromUTC, toUTC)
+    }
+
+    if err := baseQuery.Count(&totalAllCount).Error; err != nil {
         return 0, 0, 0, 0, fmt.Errorf("failed to count total users: %w", err)
     }
 
-    activeQuery := repo.DB.Model(&model.UserActivity{}).
-        Select("user_id").
-        Group("user_id")
-    if fromDate != nil && toDate != nil {
-        activeQuery = activeQuery.Where("created_at BETWEEN ? AND ?", fromDate, toDate)
+    // Active users: users who have entries in user_activities within optional date range
+    activeSub := repo.DB.Model(&model.UserActivity{}).Select("user_id")
+    if dateFilter {
+        activeSub = activeSub.Where("created_at BETWEEN ? AND ?", fromUTC, toUTC)
     }
+
+    activeQuery := repo.DB.Model(&model.DcddUser{}).Where("dcdd_auth.dcdd_users.id IN (?)", activeSub)
+    if needJoinProfile {
+        activeQuery = activeQuery.Joins("JOIN dcdd_user_data.dcdd_user_profiles up ON up.user_id = dcdd_auth.dcdd_users.id")
+        if dzongkhag_id != nil {
+            activeQuery = activeQuery.Where("up.dzongkhag_id = ?", *dzongkhag_id)
+        }
+        if category != nil {
+            activeQuery = activeQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
+        }
+    }
+
     if err := activeQuery.Count(&totalActiveCount).Error; err != nil {
         return 0, 0, 0, 0, fmt.Errorf("failed to count active users: %w", err)
     }
@@ -603,8 +638,22 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time) (tota
         totalInActiveCount = 0
     }
 
-    if err := repo.DB.Model(&model.DcddUser{}).Where("created_at BETWEEN ? AND ?", fromDate, toDate).Count(&totalNewCount).Error; err != nil {
-        return 0, 0, 0, 0,fmt.Errorf("failed to count new registrations: %w", err)
+    // New registrations: count users created in the date range (respecting other filters)
+    if dateFilter {
+        newQuery := repo.DB.Model(&model.DcddUser{})
+        if needJoinProfile {
+            newQuery = newQuery.Joins("JOIN dcdd_user_data.dcdd_user_profiles up ON up.user_id = dcdd_auth.dcdd_users.id")
+            if dzongkhag_id != nil {
+                newQuery = newQuery.Where("up.dzongkhag_id = ?", *dzongkhag_id)
+            }
+            if category != nil {
+                newQuery = newQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
+            }
+        }
+        newQuery = newQuery.Where("dcdd_auth.dcdd_users.created_at BETWEEN ? AND ?", fromUTC, toUTC)
+        if err := newQuery.Count(&totalNewCount).Error; err != nil {
+            return 0, 0, 0, 0, fmt.Errorf("failed to count new registrations: %w", err)
+        }
     }
 
     return int(totalAllCount), int(totalActiveCount), int(totalNewCount), int(totalInActiveCount), nil
