@@ -105,11 +105,14 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					"dzongkhag_id": &graphql.ArgumentConfig{
 						Type: scalar.UUID,
 					},
+					"school_id": &graphql.ArgumentConfig{
+						Type: scalar.UUID,
+					},
+					"eccd_id": &graphql.ArgumentConfig{
+						Type: scalar.UUID,
+					},
 					"category": &graphql.ArgumentConfig{
 						Type: graphql.String,
-					},
-					"school_or_eccd_id": &graphql.ArgumentConfig{
-						Type: scalar.UUID,
 					},
                 },
                 Resolve: func(p graphql.ResolveParams) (interface{}, error) {

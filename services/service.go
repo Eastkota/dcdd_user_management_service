@@ -27,7 +27,7 @@ type Services interface {
 	FetchGrade(ctx context.Context) ([]model.Grade, error)
 	FetchSchool(ctx context.Context, schoolId uuid.UUID) ([]model.School, error)
 	FetchEccd(ctx context.Context, schoolId  uuid.UUID) ([]model.Eccd, error)
-	GetDcddUserTotals(fromDate, toDate *time.Time, school_or_eccd_id, dzongkhag_id *uuid.UUID, category *string) (totalAll int, totalActive int, totalInActive, totalNew int, err error)
+	GetDcddUserTotals(fromDate, toDate *time.Time, school_id, eccd_id, dzongkhag_id *uuid.UUID, category *string) (totalAll int, totalActive int, totalInActive, totalNew int, err error)
 
 	GetUserActivity(offset, limit int) ([]model.UserActivity, error)
 }
