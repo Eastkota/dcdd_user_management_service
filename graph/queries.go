@@ -116,8 +116,8 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
                 },
                 Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-                    // return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
-                    return resolver.GetDcddUserTotals(p), nil
+                    return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
+                    // return resolver.GetDcddUserTotals(p), nil
                 },
             },
 
