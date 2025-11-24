@@ -108,6 +108,9 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					"category": &graphql.ArgumentConfig{
 						Type: graphql.String,
 					},
+					"school_or_eccd_id": &graphql.ArgumentConfig{
+						Type: scalar.UUID,
+					},
                 },
                 Resolve: func(p graphql.ResolveParams) (interface{}, error) {
                     // return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil

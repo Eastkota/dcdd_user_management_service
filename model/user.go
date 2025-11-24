@@ -67,6 +67,7 @@ type School struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Name      string `gorm:"type:varchar(255)" json:"name"`
 	PvtPublic string `gorm:"type:varchar(50)" json:"pvt_public"`
+	DzonghkhagId uuid.UUID `gorm:"type:uuid" json:"dzongkhag_id"`
 }
 type SchoolResult struct {
 	School []School `gorm:"type:uuid;primaryKey" json:"school"`
@@ -89,6 +90,7 @@ type Eccd struct {
 	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Name      string `gorm:"type:varchar(255)" json:"name"`
 	Sort      string  `gorm:"type:varchar(50)" json:"sort"`
+	DzonghkhagId uuid.UUID `gorm:"type:uuid" json:"dzongkhag_id"`
 }
 type EccdResult struct {
 	Eccd []Eccd `gorm:"type:uuid;primaryKey" json:"eccd"`

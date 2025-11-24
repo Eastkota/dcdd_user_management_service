@@ -254,6 +254,15 @@ func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGe
         }
     }
 
+    var schoolOrEccdPtr *uuid.UUID
+    if val, ok := p.Args["school_or_eccd_id"]; ok && val != nil {
+        if id, ok := val.(uuid.UUID); ok && id != uuid.Nil {
+            schoolOrEccdPtr = &id
+        } else {
+            return helpers.FormatError(fmt.Errorf("school_or_eccd_id argument is not a valid UUID type"))
+        }
+    }
+
     var categoryPtr *string
     if val, ok := p.Args["category"]; ok && val != nil {
         if s, ok := val.(string); ok && s != "" {
@@ -261,7 +270,7 @@ func (ar *UserResolver) GetDcddUserTotals(p graphql.ResolveParams) *model.DcddGe
         }
     }
 
-    totalAll, totalActive, totalNew,totalInActive, err := ar.Services.GetDcddUserTotals(fromDate, toDate, dzongkhagPtr, categoryPtr)
+    totalAll, totalActive, totalNew,totalInActive, err := ar.Services.GetDcddUserTotals(fromDate, toDate,schoolOrEccdPtr, dzongkhagPtr, categoryPtr)
     if err != nil {
         return helpers.FormatError(err)
     }

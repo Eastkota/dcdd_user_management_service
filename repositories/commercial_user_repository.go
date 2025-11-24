@@ -574,16 +574,13 @@ func (repo *UserRepository) FetchEccd(ctx context.Context, DzonghkhagId uuid.UUI
 	return eccds, nil
 }
 
-func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzongkhag_id *uuid.UUID, category *string) (totalAll int, totalActive int, totalInActive, totalNew int, err error) {
+func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, school_or_eccd_id, dzongkhag_id *uuid.UUID, category *string) (totalAll int, totalActive int, totalNew int, totalInActive int, err error) {
     var totalAllCount int64
     var totalActiveCount int64
     var totalInActiveCount int64
     var totalNewCount int64
 
-    // Prepare base query for users
-    baseQuery := repo.DB.Model(&model.DcddUser{})
-
-    // Apply date filter if provided
+    // 1. SETUP DATE FILTER
     var fromUTC, toUTC time.Time
     var dateFilter bool
     if fromDate != nil && toDate != nil {
@@ -592,15 +589,25 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzong
         dateFilter = true
     }
 
-    // If dzongkhag or category filters are present, join profiles
-    needJoinProfile := dzongkhag_id != nil || category != nil
+    // 2. DETERMINE IF WE NEED TO JOIN USER_PROFILE
+    // We join if filtering by Dzongkhag, Category, OR School/ECCD
+    needJoinProfile := dzongkhag_id != nil || category != nil || school_or_eccd_id != nil
+
+    // --- QUERY 1: TOTAL ALL ---
+    baseQuery := repo.DB.Model(&model.DcddUser{})
+
     if needJoinProfile {
         baseQuery = baseQuery.Joins("JOIN dcdd_user_data.dcdd_user_profiles up ON up.user_id = dcdd_auth.dcdd_users.id")
+        
         if dzongkhag_id != nil {
             baseQuery = baseQuery.Where("up.dzongkhag_id = ?", *dzongkhag_id)
         }
         if category != nil {
             baseQuery = baseQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
+        }
+        // NEW: Filter by School OR ECCD ID
+        if school_or_eccd_id != nil {
+            baseQuery = baseQuery.Where("(up.school_id = ? OR up.eccd_id = ?)", *school_or_eccd_id, *school_or_eccd_id)
         }
     }
 
@@ -612,13 +619,14 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzong
         return 0, 0, 0, 0, fmt.Errorf("failed to count total users: %w", err)
     }
 
-    // Active users: users who have entries in user_activities within optional date range
+    // --- QUERY 2: ACTIVE USERS ---
     activeSub := repo.DB.Model(&model.UserActivity{}).Select("user_id")
     if dateFilter {
         activeSub = activeSub.Where("created_at BETWEEN ? AND ?", fromUTC, toUTC)
     }
 
     activeQuery := repo.DB.Model(&model.DcddUser{}).Where("dcdd_auth.dcdd_users.id IN (?)", activeSub)
+    
     if needJoinProfile {
         activeQuery = activeQuery.Joins("JOIN dcdd_user_data.dcdd_user_profiles up ON up.user_id = dcdd_auth.dcdd_users.id")
         if dzongkhag_id != nil {
@@ -627,18 +635,23 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzong
         if category != nil {
             activeQuery = activeQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
         }
+        // NEW: Filter Active by School OR ECCD ID
+        if school_or_eccd_id != nil {
+            activeQuery = activeQuery.Where("(up.school_id = ? OR up.eccd_id = ?)", *school_or_eccd_id, *school_or_eccd_id)
+        }
     }
 
     if err := activeQuery.Count(&totalActiveCount).Error; err != nil {
         return 0, 0, 0, 0, fmt.Errorf("failed to count active users: %w", err)
     }
 
+    // CALCULATE INACTIVE
     totalInActiveCount = totalAllCount - totalActiveCount
     if totalInActiveCount < 0 {
         totalInActiveCount = 0
     }
 
-    // New registrations: count users created in the date range (respecting other filters)
+    // --- QUERY 3: NEW REGISTRATIONS ---
     if dateFilter {
         newQuery := repo.DB.Model(&model.DcddUser{})
         if needJoinProfile {
@@ -649,6 +662,10 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzong
             if category != nil {
                 newQuery = newQuery.Where("dcdd_auth.dcdd_users.category = ?", *category)
             }
+            // NEW: Filter New Registrations by School OR ECCD ID
+            if school_or_eccd_id != nil {
+                newQuery = newQuery.Where("(up.school_id = ? OR up.eccd_id = ?)", *school_or_eccd_id, *school_or_eccd_id)
+            }
         }
         newQuery = newQuery.Where("dcdd_auth.dcdd_users.created_at BETWEEN ? AND ?", fromUTC, toUTC)
         if err := newQuery.Count(&totalNewCount).Error; err != nil {
@@ -656,6 +673,7 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, dzong
         }
     }
 
+    // Ensure return order matches signature: All, Active, New, Inactive
     return int(totalAllCount), int(totalActiveCount), int(totalNewCount), int(totalInActiveCount), nil
 }
 
