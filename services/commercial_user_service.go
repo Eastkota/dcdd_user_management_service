@@ -104,8 +104,12 @@ func (as *UserService) FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]
 	return as.Repository.FetchEccd(ctx, dzongkhagId)
 }
 
-func (as *UserService) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
-	return as.Repository.GetUserActivity(offset, limit)
+// func (as *UserService) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
+// 	return as.Repository.GetUserActivity(offset, limit)
+// }
+
+func (as *UserService) GetUserActivityCount(offset, limit int) ([]model.AggregatedUserActivity, error) {
+    return as.Repository.GetUserActivityCount(offset, limit) 
 }
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {
@@ -192,3 +196,5 @@ func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) 
 
     return as.Repository.BulkRegistration(signupInputs)
 }
+
+

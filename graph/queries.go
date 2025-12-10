@@ -117,7 +117,6 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
                 },
                 Resolve: func(p graphql.ResolveParams) (interface{}, error) {
                     return AuthMiddleware(PermissionMiddleware("list", resolver.GetDcddUserTotals))(p), nil
-                    // return resolver.GetDcddUserTotals(p), nil
                 },
             },
 
@@ -155,7 +154,7 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					return AuthMiddleware(PermissionMiddleware("list",resolver.FetchGrade))(p), nil
 				},
 			},
-			"DcddgetUserActivity": &graphql.Field{
+			"GetUserActivityCount": &graphql.Field{
 				Type: DcddUserActivityResponse,
 				Args: graphql.FieldConfigArgument{
 					"limit": &graphql.ArgumentConfig{
@@ -166,9 +165,24 @@ func NewQueryType(resolver *resolvers.UserResolver) *graphql.Object {
 					},
 				},
 				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return AuthMiddleware(PermissionMiddleware("list", resolver.GetUserActivity))(p), nil
+					return AuthMiddleware(PermissionMiddleware("list", resolver.GetUserActivityCount))(p), nil
 				},
 			},
+			// "DcddgetUserActivity": &graphql.Field{
+			// 	Type: DcddUserActivityReportResponse,
+			// 	Args: graphql.FieldConfigArgument{
+			// 		"limit": &graphql.ArgumentConfig{
+			// 			Type: graphql.Int,
+			// 		},
+			// 		"offset": &graphql.ArgumentConfig{
+			// 			Type: graphql.Int,
+			// 		},
+			// 	},
+			// 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			// 		// return AuthMiddleware(PermissionMiddleware("list", resolver.GetUserActivity))(p), nil
+			// 		return resolver.GetUserActivity(p), nil
+			// 	},
+			// },
 		},
 	})
 }

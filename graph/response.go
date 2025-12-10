@@ -140,3 +140,19 @@ var DcddUserActivityResultType = graphql.NewObject(graphql.ObjectConfig{
 		"user_activity": &graphql.Field{Type: graphql.NewList(DcddUserActivity)},
 	},
 })
+
+// var DcddUserActivityReportResponse = graphql.NewObject(graphql.ObjectConfig{
+// 	Name: "DcddUserActivityReportResponse",
+// 	Fields: graphql.Fields{
+// 		"data":  &graphql.Field{Type: DcddUserActivityReportResultType},
+// 		"error": &graphql.Field{Type: DcddAuthError},
+// 	},
+// })
+
+// var DcddUserActivityReportResultType = graphql.NewObject(graphql.ObjectConfig{
+// 	Name: "DcddUserActivityReportResultType",
+// 	Fields: graphql.Fields{
+// 		"user_activity": &graphql.Field{Type: graphql.NewList(DcddUserReportActivity)},
+// 	},
+// })
+

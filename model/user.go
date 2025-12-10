@@ -135,4 +135,16 @@ func (UserActivity) TableName() string {
     return "dcdd_auth.dcdd_user_activities"
 }
 
+type AggregatedUserActivity struct {
+    UserID          uuid.UUID   `json:"user_id" gorm:"column:user_id"`
+    Month           int         `json:"month" gorm:"column:month"`             
+    Year            int         `json:"year" gorm:"column:year"`              
+    
+    // These names MUST match the AS aliases in your SQL SELECT statement
+    VideoWatchCount int64       `json:"video_watch_count" gorm:"column:video_watch_count"` 
+    OtherCount      int64       `json:"other_count" gorm:"column:other_count"`       
+    
+    User            *DcddUser   `json:"user"`              
+}
+
 

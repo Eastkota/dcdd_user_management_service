@@ -677,13 +677,60 @@ func (repo *UserRepository) GetDcddUserTotals(fromDate, toDate *time.Time, schoo
     return int(totalAllCount), int(totalActiveCount), int(totalNewCount), int(totalInActiveCount), nil
 }
 
-func (repo *UserRepository) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
-    var results []model.UserActivity
+// func (repo *UserRepository) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
+//     var results []model.UserActivity
+
+//     err := repo.DB.
+//         Model(&model.UserActivity{}).
+//         Select("user_id, COUNT(*) as count").
+//         Group("user_id").
+//         Offset(offset).
+//         Limit(limit).
+//         Preload("User").
+//         Preload("User.UserProfile").
+//         Find(&results).Error
+
+//     if err != nil {
+//         return nil, err
+//     }
+
+//     return results, nil
+// }
+
+func (repo *UserRepository) GetUserActivityCount(offset, limit int) ([]model.AggregatedUserActivity, error) {
+    var results []model.AggregatedUserActivity
+
+    // --- 2. Use SUM(CASE WHEN ...) for Pivoting ---
+    selects := fmt.Sprintf(`
+        user_id,
+        EXTRACT(MONTH FROM created_at) AS month,
+        EXTRACT(YEAR FROM created_at) AS year,
+
+        -- Pivot: Calculate Video Watch Count
+        SUM(CASE
+            WHEN activity ILIKE '%%Video%%' THEN 1
+            ELSE 0
+        END) AS video_watch_count,
+
+        -- Pivot: Calculate Other Count
+        SUM(CASE
+            WHEN activity ILIKE '%%Video%%' THEN 0
+            ELSE 1
+        END) AS other_count
+    `)
+
+    // --- 3. Group only by User, Month, and Year ---
+    groupByFields := `
+        user_id,
+        month,
+        year
+    `
 
     err := repo.DB.
         Model(&model.UserActivity{}).
-        Select("user_id, COUNT(*) as count").
-        Group("user_id").
+        Select(selects).
+        Group(groupByFields).
+        Order("user_id, year, month"). // Optional: Add ordering for clarity
         Offset(offset).
         Limit(limit).
         Preload("User").
