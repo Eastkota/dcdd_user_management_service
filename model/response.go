@@ -37,9 +37,5 @@ type FetchAllDcddActiveUsersResult struct{
 }
 
 type UserActivityResult struct{
-    UserActivities  []AggregatedUserActivity `json:"user_activity"`    
+    UserActivities  []GroupedUserActivity `json:"grouped_user_activities"`    
 }
-
-// type UserActivityReportResult struct{
-//     UserActivities  []UserActivity `json:"user_activity"`    
-// }

@@ -104,12 +104,38 @@ func (as *UserService) FetchEccd(ctx context.Context, dzongkhagId uuid.UUID) ([]
 	return as.Repository.FetchEccd(ctx, dzongkhagId)
 }
 
-// func (as *UserService) GetUserActivity(offset, limit int) ([]model.UserActivity, error) {
-// 	return as.Repository.GetUserActivity(offset, limit)
-// }
-
-func (as *UserService) GetUserActivityCount(offset, limit int) ([]model.AggregatedUserActivity, error) {
-    return as.Repository.GetUserActivityCount(offset, limit) 
+func (vs *UserService) GetUserActivity(offset, limit int) ([]model.GroupedUserActivity, error) {
+    rawActivities, err := vs.Repository.GetUserActivity(offset, limit)
+    if err != nil {
+        return nil, err
+    }
+    
+    groupedMap := make(map[uuid.UUID]*model.GroupedUserActivity)
+    
+    for _, activity := range rawActivities {
+        userID := activity.UserID
+        
+        if _, exists := groupedMap[userID]; !exists {
+            groupedMap[userID] = &model.GroupedUserActivity{
+                UserID:          userID,
+                User:            activity.User,
+                Month:           activity.Month,
+                Year:            activity.Year,
+                ActivityCounts:  make(model.ActivityCounts),
+                TotalCount:      0,
+            }
+        }
+        
+        groupedMap[userID].ActivityCounts[activity.Activity] += activity.Count
+        groupedMap[userID].TotalCount += activity.Count
+    }
+    
+    groupedActivities := make([]model.GroupedUserActivity, 0, len(groupedMap))
+    for _, group := range groupedMap {
+        groupedActivities = append(groupedActivities, *group)
+    }
+    
+    return groupedActivities, nil
 }
 
 func (as *UserService) BulkRegistration(ctx context.Context, csvData io.Reader) error {

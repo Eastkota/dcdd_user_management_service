@@ -129,30 +129,15 @@ var DcddUserTotalsResponse = graphql.NewObject(graphql.ObjectConfig{
 var DcddUserActivityResponse = graphql.NewObject(graphql.ObjectConfig{
 	Name: "DcddUserActivityResponse",
 	Fields: graphql.Fields{
-		"data":  &graphql.Field{Type: DcddUserActivityResultType},
+		"data":  &graphql.Field{Type: DcddUserActivityResult},
 		"error": &graphql.Field{Type: DcddAuthError},
 	},
 })
 
-var DcddUserActivityResultType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "DcddUserActivityResultType",
+var DcddUserActivityResult = graphql.NewObject(graphql.ObjectConfig{
+	Name: "DcddUserActivityResult",
 	Fields: graphql.Fields{
-		"user_activity": &graphql.Field{Type: graphql.NewList(DcddUserActivity)},
+		"grouped_user_activities": &graphql.Field{Type: graphql.NewList(DcddGroupedUserActivity)},
 	},
 })
-
-// var DcddUserActivityReportResponse = graphql.NewObject(graphql.ObjectConfig{
-// 	Name: "DcddUserActivityReportResponse",
-// 	Fields: graphql.Fields{
-// 		"data":  &graphql.Field{Type: DcddUserActivityReportResultType},
-// 		"error": &graphql.Field{Type: DcddAuthError},
-// 	},
-// })
-
-// var DcddUserActivityReportResultType = graphql.NewObject(graphql.ObjectConfig{
-// 	Name: "DcddUserActivityReportResultType",
-// 	Fields: graphql.Fields{
-// 		"user_activity": &graphql.Field{Type: graphql.NewList(DcddUserReportActivity)},
-// 	},
-// })
 

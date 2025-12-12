@@ -211,32 +211,39 @@ var FetchAllDcddUsersResult = graphql.NewObject(
     },
 )
 
-// var DcddUserReportActivity = graphql.NewObject(graphql.ObjectConfig{
-// 	Name: "DcddUserReportActivity",
-// 	Fields: graphql.Fields{
-// 		"id":                         &graphql.Field{Type: scalar.UUID},
-// 		"activity":                       &graphql.Field{Type: graphql.String},
-// 		"user_id":                         &graphql.Field{Type: scalar.UUID},
-// 		"count":                     &graphql.Field{Type: graphql.Int},
-// 		"created_at":                 &graphql.Field{Type: scalar.Time},
-// 		"updated_at":                 &graphql.Field{Type: scalar.Time},
-
-// 		"user":						&graphql.Field{Type: DcddUser},
-// 	},
-// })
-
 var DcddUserActivity = graphql.NewObject(graphql.ObjectConfig{
     Name: "DcddUserActivity",
     Fields: graphql.Fields{
-        "user_id":           &graphql.Field{Type: scalar.UUID},
-        "month":             &graphql.Field{Type: graphql.Int},    
-        "year":              &graphql.Field{Type: graphql.Int},    
-        
-        // Add the two pivoted fields
-        "video_watch_count": &graphql.Field{Type: graphql.Int}, // New
-        "other_count":       &graphql.Field{Type: graphql.Int}, // New
+        "id":         &graphql.Field{Type: scalar.UUID},
+		"user_id":    &graphql.Field{Type: scalar.UUID},
+		"activity":  &graphql.Field{Type: graphql.String},
+		"created_at": &graphql.Field{Type: scalar.Time},
+		"updated_at": &graphql.Field{Type: scalar.Time},
+		"count":      &graphql.Field{Type: graphql.Int},
+		"month":      &graphql.Field{Type: graphql.Int},
+		"year":       &graphql.Field{Type: graphql.Int},
         
         "user":              &graphql.Field{Type: DcddUser},       
+    },
+})
+
+var DcddActivityCounts = graphql.NewObject(graphql.ObjectConfig{
+    Name: "DcddActivityCounts",
+    Fields: graphql.Fields{
+        "video_watched": &graphql.Field{Type:graphql.Int},
+        "others": &graphql.Field{Type:graphql.Int},
+    },
+})
+
+var DcddGroupedUserActivity = graphql.NewObject(graphql.ObjectConfig{
+    Name: "DcddGroupedUserActivity",
+    Fields: graphql.Fields{
+        "user_id":       &graphql.Field{Type: scalar.UUID},
+        "month":         &graphql.Field{Type: graphql.Int},
+        "year":          &graphql.Field{Type: graphql.Int}, 
+        "activity_counts": &graphql.Field{Type: DcddActivityCounts},
+        "total_count": &graphql.Field{Type:graphql.Int},
+        "user":          &graphql.Field{Type: DcddUser},
     },
 })
 

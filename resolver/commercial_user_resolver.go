@@ -529,43 +529,21 @@ func (ur *UserResolver) FetchDzongkhag(p graphql.ResolveParams) *model.DcddGener
 	}
 }
 
-// func (ur *UserResolver) GetUserActivity(p graphql.ResolveParams) *model.DcddGenericUserResponse {
-//     offset, _ := p.Args["offset"].(int)
-//     limit, _ := p.Args["limit"].(int)
-//     if limit == 0 {
-//         limit = 20 
-//     }
-
-//     activities, err := ur.Services.GetUserActivity(offset, limit)
-//     if err != nil {
-//             return helpers.FormatError(fmt.Errorf("failed to fetch user activity: %v", err))
-//         }
-
-//     return &model.DcddGenericUserResponse{
-//         Data: &model.UserActivityReportResult{
-//             UserActivities: activities,
-//         },
-//         Error: nil,
-//     }
-// }
-
-func (ur *UserResolver) GetUserActivityCount(p graphql.ResolveParams) *model.DcddGenericUserResponse {
+func (ar *UserResolver) GetUserActivity(p graphql.ResolveParams) *model.DcddGenericUserResponse {
     offset, _ := p.Args["offset"].(int)
     limit, _ := p.Args["limit"].(int)
     if limit == 0 {
         limit = 20 
     }
 
-    // Note the change in the variable type
-    activities, err := ur.Services.GetUserActivityCount(offset, limit) 
+    activities, err := ar.Services.GetUserActivity(offset, limit)
     if err != nil {
             return helpers.FormatError(fmt.Errorf("failed to fetch user activity: %v", err))
         }
 
     return &model.DcddGenericUserResponse{
         Data: &model.UserActivityResult{
-            // The type must match the definition in your response struct
-            UserActivities: activities, 
+            UserActivities: activities,
         },
         Error: nil,
     }
